@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same two-layer structure as view_tile.xml; see the note there. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tile"
+    android:layout_width="@dimen/allapps_outer"
+    android:layout_height="@dimen/allapps_outer"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:focusable="true"
+    android:padding="@dimen/tile_inset">
+
+    <FrameLayout
+        android:id="@+id/tile_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/tile_bg"
+        android:duplicateParentState="true">
+
+        <ImageView
+            android:id="@+id/tile_icon"
+            android:layout_width="@dimen/allapps_icon"
+            android:layout_height="@dimen/allapps_icon"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter" />
+    </FrameLayout>
+</FrameLayout>

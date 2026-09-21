@@ -1,0 +1,8 @@
+# Toolchain integrity record - 2026-09-20T10:31:22Z
+cmdline-tools url    = https://dl.google.com/android/repository/commandlinetools-win-16111833_latest.zip
+cmdline-tools sha1   = 57d04f2d75eb8e8fffc5000a987e5de4b5a63e9d  (matches repository2-1.xml)
+cmdline-tools sha256 = e5885e2e59038c0778a85fc19f01de7ce7c567c105553f7617b936b1e0e87b2b
+gradle 8.11.1 sha256 = f397b287023acdba1e9f6fc5ea72d22dd63669d59ed4a289a29b1a76eee151c6  (services.gradle.org official)
+kutu-home-background.png sha256 = 425f253a94ed4c2240688a458ac27a1ac96441f99b678e1d74971e6ea764d424
+kutu-home-background.png source = https://raw.githubusercontent.com/bevcko16/kutu-android-tv-guide/main/kutu-home-background.png (1672x941, used verbatim)
+upstream airplay commit = c8defdd70d7e6a04f4f1b71d353653682d594106

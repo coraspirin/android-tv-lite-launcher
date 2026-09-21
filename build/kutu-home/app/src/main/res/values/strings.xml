@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kutu Home</string>
+
+    <string name="chip_mirror">Ekran Yansıtma</string>
+    <string name="chip_settings">Ayarlar</string>
+    <string name="chip_all_apps">Tüm Uygulamalar</string>
+
+    <string name="menu_move">Taşı</string>
+    <string name="menu_remove">Ana ekrandan kaldır</string>
+    <string name="menu_add">Ana ekrana ekle</string>
+    <string name="menu_app_info">Uygulama bilgisi</string>
+    <string name="menu_uninstall">Uygulamayı kaldır</string>
+
+    <string name="move_hint">◀ ▶ taşı · OK onayla · GERİ iptal</string>
+    <string name="all_apps_title">Tüm Uygulamalar</string>
+    <string name="empty_dock">Ana ekrana uygulama ekle</string>
+    <string name="app_unavailable">Uygulama yüklü değil</string>
+
+    <string name="mirror_title">Ekran Yansıtma</string>
+    <string name="mirror_state_ready">Alıcı hazır</string>
+    <string name="mirror_state_stopped">Alıcı kurulu ama çalışmıyor</string>
+    <string name="mirror_state_unknown">Alıcı kurulu, durum okunamadı</string>
+    <string name="mirror_state_missing">Alıcı kurulu değil</string>
+    <string name="mirror_toggle">Alıcı</string>
+    <string name="mirror_toggle_failed">Alıcı değiştirilemedi</string>
+    <string name="settings_unavailable">Ayarlar açılamadı</string>
+    <string name="tile_add">Uygulama ekle</string>
+    <string name="on_home_suffix">ana ekranda</string>
+</resources>

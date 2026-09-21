@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Two layers on purpose.
+
+    The outer FrameLayout is the focusable view and carries `tile_inset` as padding.
+    Android scrolls a newly focused child into view using its *unscaled* bounds, so if
+    the focusable view were the visible card itself, the shelf would stop scrolling
+    exactly at the card's edge and the 114% focus scale plus its glow would be clipped
+    away. Padding on the scrolling row cannot fix that - the scroll lands on the child,
+    not on the row's padding.
+
+    Making the focusable view larger than the card puts that growth room inside the
+    bounds Android scrolls to, so the focus effect always has space to expand into.
+    The inner card is what actually gets scaled and lifted.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tile"
+    android:layout_width="@dimen/tile_outer"
+    android:layout_height="@dimen/tile_outer"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:focusable="true"
+    android:focusableInTouchMode="false"
+    android:padding="@dimen/tile_inset">
+
+    <FrameLayout
+        android:id="@+id/tile_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/tile_bg"
+        android:duplicateParentState="true">
+
+        <ImageView
+            android:id="@+id/tile_icon"
+            android:layout_width="@dimen/tile_icon"
+            android:layout_height="@dimen/tile_icon"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter" />
+    </FrameLayout>
+</FrameLayout>

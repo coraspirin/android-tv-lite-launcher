@@ -1,0 +1,9 @@
+﻿package:com.tcl.browser
+package:com.trt.tabii.android
+package:com.wbd.stream
+package:com.bp.box
+package:com.tvonline.filewizard
+package:com.rma.speedtesttv
+package:com.turkcell.ott
+package:com.apple.atve.androidtv.appletv
+package:com.stremio.one

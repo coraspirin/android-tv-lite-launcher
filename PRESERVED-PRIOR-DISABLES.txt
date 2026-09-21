@@ -1,0 +1,6 @@
+# Disabled BEFORE this project started. NEVER re-enabled by RESTORE-ALL (guide rule 0.7).
+com.android.camera2
+com.google.android.youtube.tvmusic
+com.google.android.videos
+com.google.android.play.games
+com.netflix.ninja

@@ -1,0 +1,5 @@
+﻿package:com.android.camera2
+package:com.google.android.youtube.tvmusic
+package:com.google.android.videos
+package:com.google.android.play.games
+package:com.netflix.ninja

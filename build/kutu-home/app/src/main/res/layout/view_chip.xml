@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/chip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/chip_bg"
+    android:focusable="true"
+    android:fontFamily="sans-serif-medium"
+    android:paddingStart="@dimen/chip_h_padding"
+    android:paddingTop="@dimen/chip_v_padding"
+    android:paddingEnd="@dimen/chip_h_padding"
+    android:paddingBottom="@dimen/chip_v_padding"
+    android:textColor="@color/ink_on_glass"
+    android:textSize="@dimen/chip_text" />

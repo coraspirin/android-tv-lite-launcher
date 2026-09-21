@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/menu_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/menu_row_bg"
+    android:focusable="true"
+    android:gravity="center"
+    android:paddingStart="18dp"
+    android:paddingTop="13dp"
+    android:paddingEnd="18dp"
+    android:paddingBottom="13dp"
+    android:textColor="@color/ink_on_glass"
+    android:textSize="@dimen/menu_text" />

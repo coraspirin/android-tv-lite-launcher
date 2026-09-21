@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- guide 18: dark navy / charcoal text over the light supplied background -->
+    <color name="ink">#FF16233A</color>
+    <color name="ink_dim">#FF55647C</color>
+    <color name="ink_on_glass">#FFEDF2F8</color>
+    <color name="ink_on_glass_dim">#FFA9B6C6</color>
+
+    <!-- one centered translucent dark-glass shelf -->
+    <color name="shelf_glass">#C20D1626</color>
+    <color name="shelf_stroke">#2BFFFFFF</color>
+
+    <!-- tiles -->
+    <color name="tile_face">#FF14202E</color>
+    <color name="tile_face_focused">#FF1E2E42</color>
+    <color name="tile_transparent_logo_bg">#FF0E1520</color>
+    <color name="tile_missing">#FF2A3342</color>
+
+    <!-- focus accent, sampled from the background's blue -->
+    <color name="accent">#FF7FC4F5</color>
+    <color name="accent_glow">#8C7FC4F5</color>
+
+    <!-- chips -->
+    <color name="chip_glass">#B00D1626</color>
+    <color name="chip_glass_focused">#F0223A5C</color>
+
+    <!-- receiver on/off switch in the mirror panel -->
+    <color name="switch_thumb_off">#FF8C99AB</color>
+    <color name="switch_track_off">#40FFFFFF</color>
+    <color name="switch_track_on">#807FC4F5</color>
+
+    <!-- menus / panels -->
+    <color name="veil">#8C0A111C</color>
+    <color name="menu_glass">#F21A2740</color>
+    <color name="menu_row_focused">#FF27405F</color>
+    <color name="divider">#1FFFFFFF</color>
+
+    <color name="state_ready">#FF6FD38A</color>
+    <color name="state_stopped">#FFE8A857</color>
+    <color name="state_unknown">#FFA9B6C6</color>
+    <color name="state_missing">#FFE2716B</color>
+</resources>

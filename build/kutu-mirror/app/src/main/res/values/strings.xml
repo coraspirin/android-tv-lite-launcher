@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kutu Mirror</string>
+
+    <!-- Notification -->
+    <string name="notification_channel">Kutu Mirror</string>
+    <string name="notification_title">Kutu Mirror</string>
+    <string name="notification_text">Ready for AirPlay screen mirroring</string>
+    <string name="notification_pin_title">AirPlay PIN</string>
+    <string name="notification_pin_text">PIN: %1$s</string>
+</resources>

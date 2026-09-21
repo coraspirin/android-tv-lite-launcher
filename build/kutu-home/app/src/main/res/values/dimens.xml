@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- overscan-safe margins for a 960x540dp TV surface -->
+    <dimen name="overscan_h">48dp</dimen>
+    <dimen name="overscan_v">27dp</dimen>
+
+    <dimen name="tile_size">88dp</dimen>
+    <dimen name="tile_icon">56dp</dimen>
+    <dimen name="tile_gap">0dp</dimen>
+    <dimen name="tile_radius">18dp</dimen>
+
+    <dimen name="shelf_padding">12dp</dimen>
+    <!-- growth room for the focus scale + glow, INSIDE the clip box -->
+    <dimen name="shelf_padding_v">6dp</dimen>
+    <dimen name="row_padding">4dp</dimen>
+    <dimen name="shelf_radius">30dp</dimen>
+    <dimen name="shelf_bottom">64dp</dimen>
+
+    <dimen name="chip_h_padding">20dp</dimen>
+    <dimen name="chip_v_padding">9dp</dimen>
+    <dimen name="chip_radius">20dp</dimen>
+    <dimen name="chip_gap">12dp</dimen>
+
+    <dimen name="clock_time">34sp</dimen>
+    <dimen name="clock_date">15sp</dimen>
+    <dimen name="focused_label">20sp</dimen>
+    <dimen name="chip_text">14sp</dimen>
+    <dimen name="menu_text">17sp</dimen>
+    <dimen name="hint_text">14sp</dimen>
+
+    <dimen name="menu_width">360dp</dimen>
+    <dimen name="menu_radius">22dp</dimen>
+    <!-- the mirror panel holds a title, a state line and the switch; matches menu_width -->
+    <dimen name="panel_width">360dp</dimen>
+
+    <dimen name="allapps_tile">108dp</dimen>
+    <dimen name="allapps_icon">60dp</dimen>
+    <!-- focusable outer box = card + 2*inset; the inset is the growth room Android
+         scrolls into view, so the focus scale and glow are never clipped -->
+    <dimen name="tile_inset">12dp</dimen>
+    <dimen name="tile_outer">112dp</dimen>
+    <dimen name="allapps_outer">116dp</dimen>
+</resources>

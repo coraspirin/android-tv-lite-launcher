@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- guide 17: supplied image, used verbatim, fitted to 16:9 without stretch -->
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/kutu_home_background" />
+
+    <!-- calm upper area: time and date, top-right -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="@dimen/overscan_v"
+        android:layout_marginEnd="@dimen/overscan_h"
+        android:gravity="end"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/clock_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:textColor="@color/ink"
+            android:textSize="@dimen/clock_time" />
+
+        <TextView
+            android:id="@+id/clock_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/ink_dim"
+            android:textSize="@dimen/clock_date" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="@dimen/shelf_bottom"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <!-- focused app name, shown once (guide 18) -->
+        <TextView
+            android:id="@+id/focused_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/ink"
+            android:textSize="@dimen/focused_label" />
+
+        <!--
+            One centered translucent dark-glass shelf.
+
+            clipToPadding is true so a partially scrolled icon is hard-clipped at the
+            content box and can never bleed into the shelf's rounded edge. It used to
+            be false with a fading edge, which did not remove the overflow at all - it
+            only made it semi-transparent, so half-icons stayed visible under the
+            gradient. The fading edge is gone for the same reason.
+
+            Room for the focused tile's 114% scale and its glow now lives INSIDE the
+            clip box, as padding on dock_row, so the hover effect is no longer cut off.
+        -->
+        <HorizontalScrollView
+            android:id="@+id/shelf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shelf_bg"
+            android:clipToPadding="true"
+            android:paddingStart="@dimen/shelf_padding"
+            android:paddingTop="@dimen/shelf_padding_v"
+            android:paddingEnd="@dimen/shelf_padding"
+            android:paddingBottom="@dimen/shelf_padding_v"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/dock_row"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/row_padding"
+                android:paddingTop="@dimen/row_padding"
+                android:paddingEnd="@dimen/row_padding"
+                android:paddingBottom="@dimen/row_padding" />
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/move_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/ink_dim"
+            android:textSize="@dimen/hint_text"
+            android:text="@string/move_hint"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/chips_row"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:orientation="horizontal" />
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# Secrets. Master guide rule 16: never expose signing keys, passwords or
+# keystores in git. Losing these files means the Kutu apps can never be
+# updated in place again, so back them up OUTSIDE this repository.
+# ---------------------------------------------------------------------------
+keys/
+*.jks
+*.keystore
+keystore.properties
+*credentials*
+
+# sdk.dir and, for Kutu Mirror, the keystore password
+local.properties
+
+# ---------------------------------------------------------------------------
+# Toolchains. Machine-specific and large; every one is reproducible from the
+# pinned versions and SHA hashes recorded in KUTU-MIRROR.md.
+# ---------------------------------------------------------------------------
+build/sdk/
+build/downloads/
+
+# Upstream clone of jqssun/android-airplay-server. Reproducible from the commit
+# pinned in UPSTREAM-AUDIT.md; the fork itself is kept under build/kutu-mirror/.
+build/upstream/
+
+# ---------------------------------------------------------------------------
+# Gradle build output. The shipped APKs are committed at build/kutu-home.apk
+# and build/kutu-mirror.apk instead.
+# ---------------------------------------------------------------------------
+.gradle/
+build/kutu-home/build/
+build/kutu-home/app/build/
+build/kutu-mirror/build/
+build/kutu-mirror/app/build/
+build/kutu-mirror/app/.cxx/
+
+# ---------------------------------------------------------------------------
+# A 535 MB archive of this same directory. Nothing in it that the repository
+# does not already hold.
+# ---------------------------------------------------------------------------
+tv-debloat.zip
+
+# ---------------------------------------------------------------------------
+# OS noise
+# ---------------------------------------------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store

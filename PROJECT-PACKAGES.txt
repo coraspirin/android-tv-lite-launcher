@@ -1,0 +1,46 @@
+# Packages disabled BY THIS PROJECT. Restore scope = exactly this list.
+# Pre-existing disables are deliberately absent (guide rule 0.7).
+com.miui.tv.analytics
+tv.alphonso.alphonso_eula
+com.google.android.tv.bugreportsender
+com.google.android.feedback
+com.google.android.partnersetup
+com.xiaomi.android.tvsetup.partnercustomizer
+android.autoinstalls.config.xioami.mibox3
+com.google.android.onetimeinitializer
+com.android.onetimeinitializer
+com.mitv.tvhome.atv
+com.mitv.tvhome.michannel
+com.xm.webcontent
+com.mitv.download.service
+com.mitv.videoplayer
+com.xiaomi.mitv.updateservice
+com.google.android.backdrop
+com.android.dreams.basic
+com.google.android.tv
+com.google.android.marvin.talkback
+com.google.android.syncadapters.calendar
+com.google.android.syncadapters.contacts
+com.android.providers.calendar
+com.google.android.tvrecommendations
+com.android.printspooler
+com.android.wallpaperbackup
+com.android.backupconfirm
+com.google.android.backuptransport
+com.android.sharedstoragebackup
+com.android.providers.userdictionary
+com.android.companiondevicemanager
+com.android.statementservice
+com.android.settings.intelligence
+com.google.android.sss.authbridge
+com.google.android.tungsten.setupwraith
+com.google.android.katniss
+com.google.android.speech.pumpkin
+com.google.android.tts
+com.google.android.tvlauncher
+com.mitv.milinkservice
+
+# com.amazon.amazonvideo.livingroom was disabled by this project on 2026-09-20
+# and deliberately re-enabled by the human the same day because they use
+# Prime Video. Its undo is therefore already applied; it is out of restore
+# scope and RESTORE-ALL.ps1 must not touch it.

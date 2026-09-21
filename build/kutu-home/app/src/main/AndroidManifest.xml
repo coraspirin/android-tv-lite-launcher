@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- guide 15: the only permission Kutu Home may request.
+         Needed so ACTION_UNINSTALL_PACKAGE can show Android's own
+         confirmation dialog. Kutu Home never uninstalls silently. -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+
+    <uses-feature android:name="android.software.leanback" android:required="true" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.faketouch" android:required="false" />
+
+    <application
+        android:allowBackup="false"
+        android:banner="@drawable/kutu_banner"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/kutu_icon"
+        android:label="@string/app_name"
+        android:supportsRtl="false"
+        android:theme="@style/KutuTheme">
+
+        <activity
+            android:name=".HomeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:stateNotNeeded="true"
+            android:theme="@style/KutuTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- kept so the app can be launched and tested from the current
+                     launcher before it is promoted to HOME (guide 24) -->
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".AllAppsActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/KutuTheme" />
+
+        <activity
+            android:name=".MirrorPanelActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/KutuTheme.Transparent" />
+
+    </application>
+
+</manifest>

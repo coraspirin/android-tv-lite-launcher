@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/kutu_home_background" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/veil" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/overscan_h"
+        android:paddingTop="@dimen/overscan_v"
+        android:paddingEnd="@dimen/overscan_h"
+        android:paddingBottom="@dimen/overscan_v">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="@string/all_apps_title"
+            android:textColor="@color/ink_on_glass"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/all_apps_focused_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="@color/ink_on_glass_dim"
+            android:textSize="@dimen/hint_text" />
+
+        <ScrollView
+            android:id="@+id/all_apps_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:padding="10dp"
+            android:scrollbars="none">
+
+            <GridLayout
+                android:id="@+id/all_apps_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:columnCount="6" />
+        </ScrollView>
+    </LinearLayout>
+</FrameLayout>
