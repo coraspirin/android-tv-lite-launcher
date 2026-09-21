@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shown in DARK mode: a sun, because pressing the button gives you light.
+     Paired with drawable/ic_theme.xml; same name, chosen by the -night qualifier. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="48" android:viewportHeight="48">
+    <path
+        android:fillColor="@color/ink_on_glass"
+        android:pathData="M15,24 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z" />
+    <path
+        android:strokeColor="@color/ink_on_glass"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:pathData="M24,4 L24,10 M24,38 L24,44 M4,24 L10,24 M38,24 L44,24 M14.1,14.1 L9.9,9.9 M33.9,14.1 L38.1,9.9 M14.1,33.9 L9.9,38.1 M33.9,33.9 L38.1,38.1" />
+</vector>

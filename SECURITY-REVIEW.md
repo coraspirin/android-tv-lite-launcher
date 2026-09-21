@@ -51,6 +51,26 @@ an app the human uses actually works, which guide 34 forbids changing silently.
 - **41313 / 46165** were already shown to be per-boot mediashell ports; this scan shows
   a different pair again (38333 / 45899), consistent with that.
 
+**Added after this review: TCP 8787, `local.kutu.transfer`** - open only while a transfer
+session is on screen, behind a per-session PIN, and closed again on BACK or after a
+10-minute idle timeout. It must be attributed by uid in the table above when this review
+is next redone. Kutu Transfer also holds `REQUEST_INSTALL_PACKAGES`, which makes it the
+second app on the box able to install an APK - see F4 - though the install is always a
+deliberate press on the TV and never initiated over the network. See KUTU-TRANSFER.md.
+
+**Widened after that, on request: Kutu Transfer now holds `READ_EXTERNAL_STORAGE` and
+`WRITE_EXTERNAL_STORAGE`.** The first version could only see its own external files dir,
+which needs no permission on API 28. That answered "put a file on the box" but not "which
+of the box's files do I want", so the browser page became a folder browser and the whole
+internal card is now reachable - read *and* write - for the length of a session. This is
+the widest thing any app in this project holds, and it is deliberate: it was asked for
+explicitly. What bounds it is unchanged and is now doing more work than before - the
+per-session PIN, the private-peer filter, the 10-minute idle timeout, and the fact that the
+socket exists only while the session screen is on the TV. The permissions are requested at
+runtime from that screen, so a refusal leaves a working app scoped to its own folder, which
+is exactly how it shipped first. Recursive delete is deliberately not offered: a directory
+is removed only when it is already empty.
+
 Stremio's LAN-facing HTTP ports (11470 / 12470) are absent here only because Stremio was
 not running. They come back whenever it does — third-party behaviour, unchanged by this
 project, noted so it is not mistaken for something new.

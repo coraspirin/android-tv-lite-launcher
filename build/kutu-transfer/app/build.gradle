@@ -1,0 +1,63 @@
+plugins { id 'com.android.application' }
+
+def keyProps = new Properties()
+def keyFile = rootProject.file('keystore.properties')
+if (keyFile.exists()) { keyFile.withInputStream { keyProps.load(it) } }
+
+android {
+    namespace 'local.kutu.transfer'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'local.kutu.transfer'
+        minSdk 28
+        targetSdk 28
+        versionCode 1
+        versionName '1.0'
+        resourceConfigurations += ['tr', 'en']
+    }
+
+    if (keyProps.containsKey('storeFile')) {
+        signingConfigs {
+            release {
+                storeFile rootProject.file(keyProps['storeFile'])
+                storePassword keyProps['storePassword']
+                keyAlias keyProps['keyAlias']
+                keyPassword keyProps['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keyProps.containsKey('storeFile')) { signingConfig signingConfigs.release }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig false
+        viewBinding false
+        dataBinding false
+    }
+
+    // the APK carries no dependency metadata block
+    dependenciesInfo {
+        includeInApk false
+        includeInBundle false
+    }
+
+    lint { abortOnError false }
+}
+
+// Same rule as the other two apps: no AndroidX, no Compose, no GMS, no network stack beyond
+// the one ServerSocket this app exists to run. The HTTP server is hand-written for that reason.
+dependencies { }

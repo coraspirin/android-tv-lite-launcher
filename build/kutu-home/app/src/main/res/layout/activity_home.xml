@@ -5,14 +5,37 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <!-- guide 17: supplied image, used verbatim, fitted to 16:9 without stretch -->
+    <!--
+        guide 17: supplied image, used verbatim, fitted to 16:9 without stretch.
+
+        bg_scrim is transparent in the light theme and dark in the night one, so the dark
+        theme dims this image rather than shipping a second copy of it. It is a foreground
+        on the ImageView and not on the root on purpose: on the root it would darken the
+        glass and the text along with the wallpaper.
+    -->
     <ImageView
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@null"
+        android:foreground="@color/bg_scrim"
         android:scaleType="centerCrop"
         android:src="@drawable/kutu_home_background" />
+
+    <!-- theme toggle, top-left; mirrors the clock block's margins at top-right -->
+    <ImageView
+        android:id="@+id/theme_toggle"
+        android:layout_width="@dimen/theme_toggle"
+        android:layout_height="@dimen/theme_toggle"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="@dimen/overscan_v"
+        android:layout_marginStart="@dimen/overscan_h"
+        android:background="@drawable/theme_toggle_bg"
+        android:contentDescription="@string/theme_toggle"
+        android:focusable="true"
+        android:padding="11dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_theme" />
 
     <!-- calm upper area: time and date, top-right -->
     <LinearLayout
@@ -41,28 +64,25 @@
             android:textSize="@dimen/clock_date" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="@dimen/shelf_bottom"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+    <!--
+        The shelf is centred and everything else is anchored to it, rather than the four
+        being stacked and the stack centred. A stack centres its TOTAL height, which would
+        put the shelf off centre by half the difference between the label and the chips,
+        and - worse - move_hint appears and disappears with move mode, so the dock would
+        jump every time a tile was picked up. Anchored, the shelf depends on nothing and
+        nothing a sibling does can shift it.
 
-        <!-- focused app name, shown once (guide 18) -->
-        <TextView
-            android:id="@+id/focused_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:fontFamily="sans-serif-medium"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:textColor="@color/ink"
-            android:textSize="@dimen/focused_label" />
+        clipChildren is false so the chips' focus lift shadow can escape the tight wrap of
+        chips_row; a parent has to allow that for its children.
+    -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
         <!--
-            One centered translucent dark-glass shelf.
+            One centered translucent light-glass shelf.
 
             clipToPadding is true so a partially scrolled icon is hard-clipped at the
             content box and can never bleed into the shelf's rounded edge. It used to
@@ -77,6 +97,7 @@
             android:id="@+id/shelf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:background="@drawable/shelf_bg"
             android:clipToPadding="true"
             android:paddingStart="@dimen/shelf_padding"
@@ -98,10 +119,26 @@
                 android:paddingBottom="@dimen/row_padding" />
         </HorizontalScrollView>
 
+        <!-- focused app name, shown once (guide 18) -->
+        <TextView
+            android:id="@+id/focused_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/shelf"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="14dp"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/ink"
+            android:textSize="@dimen/focused_label" />
+
         <TextView
             android:id="@+id/move_hint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/shelf"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="12dp"
             android:textColor="@color/ink_dim"
             android:textSize="@dimen/hint_text"
@@ -112,8 +149,12 @@
             android:id="@+id/chips_row"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/move_hint"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="18dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:gravity="center"
             android:orientation="horizontal" />
-    </LinearLayout>
+    </RelativeLayout>
 </FrameLayout>

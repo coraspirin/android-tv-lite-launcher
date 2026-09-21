@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kutu Aktarım</string>
+
+    <string name="session_title">Dosya Aktarımı</string>
+    <string name="session_hint">Telefonunda veya bilgisayarında bu adresi aç</string>
+    <string name="session_pin_label">Kod</string>
+    <string name="session_no_wifi">Ağ bağlantısı yok</string>
+    <string name="session_failed">Aktarım başlatılamadı</string>
+    <string name="session_close_hint">GERİ tuşu aktarımı kapatır</string>
+    <string name="session_empty">Kutu klasörü boş</string>
+    <string name="scope_full">Tarayıcıdan kutudaki tüm klasörlere bakabilirsin</string>
+    <string name="scope_limited">İzin verilmedi — tarayıcıda yalnızca Kutu klasörü görünür</string>
+    <string name="open_failed">Bu dosya açılamadı</string>
+
+    <string name="notif_channel">Dosya aktarımı</string>
+    <string name="notif_title">Dosya aktarımı açık</string>
+    <string name="notif_text">Aktarım penceresini kapatınca durur</string>
+</resources>

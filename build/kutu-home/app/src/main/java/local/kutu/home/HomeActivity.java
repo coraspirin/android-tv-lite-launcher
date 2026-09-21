@@ -2,9 +2,12 @@ package local.kutu.home;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.KeyEvent;
@@ -12,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,6 +41,14 @@ public final class HomeActivity extends Activity {
     private static final int MAX_UNSCROLLED_TILES = 7;   // guide 19
     private static final String ADD_TILE_TAG = "__add__";
 
+    /**
+     * Chips lift less than tiles. They are far wider than they are tall, so a tile's
+     * 114% would read as a lurch rather than a hover, and a chip sits outside the
+     * shelf's clip box where a big shadow has nothing to sit against.
+     */
+    private static final float CHIP_FOCUS_SCALE = 1.06f;
+    private static final float CHIP_FOCUS_LIFT_DP = 4f;
+
     private ViewGroup dockRow;
     private HorizontalScrollView shelf;
     private LinearLayout chipsRow;
@@ -44,6 +56,14 @@ public final class HomeActivity extends Activity {
     private TextView moveHint;
     private TextView clockTime;
     private TextView clockDate;
+    private View themeToggle;
+
+    /**
+     * Survives the recreate() a theme change triggers, so focus returns to the button
+     * instead of dropping onto the first tile. Instance fields do not survive it, and
+     * onResume's rebuild would overwrite a plain requestFocus() posted from onCreate.
+     */
+    private static boolean focusToggleAfterThemeChange;
 
     private final List<String[]> dock = new ArrayList<>();
     private List<String[]> dockBeforeMove;
@@ -77,9 +97,18 @@ public final class HomeActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             IconNormalizer.clearCache();
+            // the card colours are derived from those icons, so they go stale with them
+            TileGlass.clearCache();
             rebuildDock();
         }
     };
+
+    /** ContextThemeWrapper throws once resources exist, so this runs before super. */
+    @Override
+    protected void attachBaseContext(Context base) {
+        applyOverrideConfiguration(ThemeStore.override(base, ThemeStore.isDark(base)));
+        super.attachBaseContext(base);
+    }
 
     @Override
     protected void onCreate(Bundle saved) {
@@ -93,6 +122,7 @@ public final class HomeActivity extends Activity {
         moveHint = findViewById(R.id.move_hint);
         clockTime = findViewById(R.id.clock_time);
         clockDate = findViewById(R.id.clock_date);
+        themeToggle = findViewById(R.id.theme_toggle);
 
         Locale tr = new Locale("tr", "TR");
         timeFormat = new SimpleDateFormat("HH:mm", tr);
@@ -103,7 +133,50 @@ public final class HomeActivity extends Activity {
         shelf.setClipToOutline(true);
 
         buildChips();
+        buildThemeToggle();
         updateClock();
+    }
+
+    /**
+     * The icon itself is picked by the -night qualifier, not here: drawable/ic_theme is a
+     * moon and drawable-night/ic_theme is a sun, so the button always shows what pressing
+     * it would give you, without any code choosing between them.
+     */
+    private void buildThemeToggle() {
+        attachGlassFocus(themeToggle, CHIP_FOCUS_SCALE, null);
+        themeToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ThemeStore.setDark(HomeActivity.this, !ThemeStore.isDark(HomeActivity.this));
+                focusToggleAfterThemeChange = true;
+                recreate();
+            }
+        });
+    }
+
+    /**
+     * The focus feel shared by the chips and the theme button. Both are glass outside the
+     * shelf, where the state selector alone leaves them looking dead next to a tile that
+     * scales and lifts. TileBehaviour's timing, so the whole screen moves alike (guide 18).
+     */
+    private void attachGlassFocus(final View v, final float scale, final Runnable onFocused) {
+        final float lift = CHIP_FOCUS_LIFT_DP * getResources().getDisplayMetrics().density;
+        final int glow = getColor(R.color.accent_glow);
+        v.setOutlineSpotShadowColor(glow);
+        v.setOutlineAmbientShadowColor(glow);
+        v.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean focused) {
+                float s = focused ? scale : 1f;
+                view.animate()
+                        .scaleX(s).scaleY(s)
+                        .translationZ(focused ? lift : 0f)
+                        .setDuration(TileBehaviour.ANIM_MS)
+                        .setInterpolator(new DecelerateInterpolator())
+                        .start();
+                if (focused && onFocused != null) onFocused.run();
+            }
+        });
     }
 
     @Override
@@ -196,7 +269,18 @@ public final class HomeActivity extends Activity {
     private void rebuildDock() {
         dock.clear();
         dock.addAll(DockStore.load(this));
-        if (lastFocusedChip >= 0) {
+        if (focusToggleAfterThemeChange) {
+            // back from a theme flip: the shelf still has to be rebuilt, but focus belongs
+            // on the button so it can be pressed again straight away
+            focusToggleAfterThemeChange = false;
+            renderDock(KEEP_FOCUS);
+            themeToggle.post(new Runnable() {
+                @Override
+                public void run() {
+                    themeToggle.requestFocus();
+                }
+            });
+        } else if (lastFocusedChip >= 0) {
             // returning from a chip panel: the shelf is rebuilt, but focus belongs on the chip
             renderDock(KEEP_FOCUS);
             focusChip(lastFocusedChip);
@@ -233,7 +317,10 @@ public final class HomeActivity extends Activity {
             ImageView icon = tile.findViewById(R.id.tile_icon);
 
             if (entry.available && entry.icon != null) {
-                icon.setImageDrawable(IconNormalizer.normalize(this, entry.pkg, entry.icon, iconPx));
+                Drawable art = IconNormalizer.normalize(this, entry.pkg, entry.icon, iconPx);
+                icon.setImageDrawable(art);
+                // the card and its hairline take the icon's own colour
+                TileGlass.apply(tile.findViewById(R.id.tile_card), entry.pkg, art);
                 tile.setAlpha(1f);
             } else {
                 // guide 19: dim an unavailable tile, never crash
@@ -245,6 +332,7 @@ public final class HomeActivity extends Activity {
             lp.setMarginStart(i == 0 ? 0 : gap);
             tile.setLayoutParams(lp);
             tile.setTag(entry.pkg);
+            tile.setNextFocusUpId(R.id.theme_toggle);
 
             TileBehaviour.attach(tile, new TileBehaviour.Callbacks() {
                 @Override
@@ -352,6 +440,7 @@ public final class HomeActivity extends Activity {
         ImageView icon = tile.findViewById(R.id.tile_icon);
         icon.setImageDrawable(getDrawable(R.drawable.ic_add));
         tile.setTag(ADD_TILE_TAG);
+        tile.setNextFocusUpId(R.id.theme_toggle);
         TileBehaviour.attach(tile, new TileBehaviour.Callbacks() {
             @Override
             public void onShortPress(View v) {
@@ -570,12 +659,38 @@ public final class HomeActivity extends Activity {
                 openSettings();
             }
         });
+        addChip(getString(R.string.chip_transfer), new Runnable() {
+            @Override
+            public void run() {
+                openTransfer();
+            }
+        });
         addChip(getString(R.string.chip_all_apps), new Runnable() {
             @Override
             public void run() {
                 openAllApps();
             }
         });
+    }
+
+    /**
+     * Unlike Ekran Yansitma, this needs no panel of its own. The transfer app's own screen is
+     * the session - it is what opens the port and what closes it again on BACK - so a switch
+     * here would only be a second, lying copy of that state.
+     *
+     * Kutu Home holds no network permission and gains none from this: it starts a component in
+     * another package and is told nothing about it.
+     */
+    private void openTransfer() {
+        Intent i = new Intent();
+        i.setComponent(new ComponentName(
+                AppRepository.TRANSFER_PKG, "local.kutu.transfer.TransferControlActivity"));
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivity(i);
+        } catch (Exception e) {
+            Toast.makeText(this, R.string.transfer_missing, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void addChip(String label, final Runnable action) {
@@ -598,10 +713,10 @@ public final class HomeActivity extends Activity {
         });
 
         final int index = chipsRow.getChildCount();
-        chip.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        attachGlassFocus(chip, CHIP_FOCUS_SCALE, new Runnable() {
             @Override
-            public void onFocusChange(View v, boolean focused) {
-                if (focused) rememberFocus(null, index);
+            public void run() {
+                rememberFocus(null, index);
             }
         });
         chipsRow.addView(chip);

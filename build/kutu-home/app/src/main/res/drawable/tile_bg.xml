@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    An app card, nested on top of the shelf glass.
+
+    Resting carries a hairline of its own: without it a white icon card (Netflix, YouTube)
+    dissolves into the bright pane behind it. Focused brightens the glass hard rather than
+    drawing a ring - together with the 114% scale, the 6dp lift and its tinted shadow from
+    TileBehaviour, that is the focus signal (guide 18: never a ring alone).
+-->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
-        <shape android:shape="rectangle">
-            <solid android:color="@color/tile_face_focused" />
+        <shape android:shape="rectangle" android:dither="true">
+            <gradient
+                android:angle="270"
+                android:type="linear"
+                android:startColor="@color/tile_focus_top"
+                android:endColor="@color/tile_focus_bottom" />
             <corners android:radius="@dimen/tile_radius" />
-            <stroke android:width="2dp" android:color="@color/accent" />
+            <stroke android:width="2dp" android:color="@color/glass_specular" />
         </shape>
     </item>
     <item>
-        <shape android:shape="rectangle">
-            <solid android:color="@color/tile_face" />
+        <shape android:shape="rectangle" android:dither="true">
+            <gradient
+                android:angle="270"
+                android:type="linear"
+                android:startColor="@color/tile_face_top"
+                android:endColor="@color/tile_face_bottom" />
             <corners android:radius="@dimen/tile_radius" />
+            <stroke android:width="1dp" android:color="@color/glass_edge" />
         </shape>
     </item>
 </selector>

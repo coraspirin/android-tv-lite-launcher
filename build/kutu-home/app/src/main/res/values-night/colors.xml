@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Dark theme. Selected by the -night qualifier once ThemeStore overrides the
+        activity's uiMode, so nothing in any drawable or layout has to know this file
+        exists - they all read the same token names.
+
+        Largely the dark-glass palette this launcher used before the liquid-glass pass,
+        which is convenient: those values were already proven on this wallpaper. The
+        difference is that the wallpaper is now dimmed behind them (bg_scrim) instead of
+        being left pale, so dark glass finally has something dark to sit on and the light
+        text over it clears contrast comfortably.
+    -->
+
+    <!-- light text over a dimmed background -->
+    <color name="ink">#FFE8EEF6</color>
+    <color name="ink_dim">#FFA0AEC2</color>
+    <color name="ink_on_glass">#FFEDF2F8</color>
+    <color name="ink_on_glass_dim">#FFA9B6C6</color>
+
+    <!-- a white hairline still reads on dark glass, just far softer -->
+    <color name="glass_edge">#33FFFFFF</color>
+    <color name="glass_specular">#66FFFFFF</color>
+
+    <!-- the shelf: dark translucent, bright at the top and falling away -->
+    <color name="glass_shelf_top">#730D1626</color>
+    <color name="glass_shelf_mid">#8A0D1626</color>
+    <color name="glass_shelf_bottom">#990D1626</color>
+
+    <!-- tiles, nested on the shelf glass -->
+    <color name="tile_face_top">#59182739</color>
+    <color name="tile_face_bottom">#73182739</color>
+    <color name="tile_focus_top">#F22B3F5C</color>
+    <color name="tile_focus_bottom">#D91E2E44</color>
+    <!-- the base TileGlass builds a card from; white in day, dark here -->
+    <color name="tile_glass_base">#FF1B2A3E</color>
+
+    <!-- the plate IconNormalizer bakes behind a transparent logo has NO night value on
+         purpose: it is baked into a static bitmap cache that outlives the recreate, so a
+         second value would simply go stale. Near-black suits both themes anyway. -->
+
+    <!-- dimming applied to the wallpaper itself, so the glass has a dark backdrop -->
+    <color name="bg_scrim">#C2060A12</color>
+
+    <!-- the pale accent reads well on dark, so it is also what ic_add uses here -->
+    <color name="accent">#FF7FC4F5</color>
+    <color name="accent_deep">#FF7FC4F5</color>
+    <!-- a dark drop shadow is invisible on dark glass; the lift needs a luminous one -->
+    <color name="accent_glow">#A67FC4F5</color>
+
+    <!-- chips -->
+    <color name="chip_glass_top">#8A0D1626</color>
+    <color name="chip_glass_bottom">#A30D1626</color>
+    <color name="chip_focus_top">#F22B3F5C</color>
+    <color name="chip_focus_bottom">#D91E2E44</color>
+
+    <!-- mirror panel switch: a dark track vanishes here, so it goes back to white -->
+    <color name="switch_thumb_off">#FF8C99AB</color>
+    <color name="switch_track_off">#40FFFFFF</color>
+    <color name="switch_track_on">#807FC4F5</color>
+
+    <!-- menus / panels -->
+    <color name="veil">#C2060A12</color>
+    <color name="menu_glass_top">#F21E2E44</color>
+    <color name="menu_glass_bottom">#F2162438</color>
+    <color name="menu_row_focused">#597FC4F5</color>
+    <color name="divider">#1FFFFFFF</color>
+
+    <!-- state lines: the darkened variants are for light frost, these are for dark -->
+    <color name="state_ready">#FF6FD38A</color>
+    <color name="state_stopped">#FFE8A857</color>
+    <color name="state_unknown">#FFA9B6C6</color>
+    <color name="state_missing">#FFE2716B</color>
+</resources>

@@ -7,19 +7,22 @@
     <dimen name="tile_size">88dp</dimen>
     <dimen name="tile_icon">56dp</dimen>
     <dimen name="tile_gap">0dp</dimen>
-    <dimen name="tile_radius">18dp</dimen>
+    <dimen name="tile_radius">22dp</dimen>
 
     <dimen name="shelf_padding">12dp</dimen>
     <!-- growth room for the focus scale + glow, INSIDE the clip box -->
     <dimen name="shelf_padding_v">6dp</dimen>
     <dimen name="row_padding">4dp</dimen>
     <dimen name="shelf_radius">30dp</dimen>
-    <dimen name="shelf_bottom">64dp</dimen>
 
     <dimen name="chip_h_padding">20dp</dimen>
     <dimen name="chip_v_padding">9dp</dimen>
     <dimen name="chip_radius">20dp</dimen>
     <dimen name="chip_gap">12dp</dimen>
+
+    <!-- round theme button, top-left; mirrors the clock block at top-right -->
+    <dimen name="theme_toggle">44dp</dimen>
+    <dimen name="theme_toggle_icon">22dp</dimen>
 
     <dimen name="clock_time">34sp</dimen>
     <dimen name="clock_date">15sp</dimen>

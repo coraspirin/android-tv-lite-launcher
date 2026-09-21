@@ -1,7 +1,9 @@
 package local.kutu.home;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +23,13 @@ import java.util.List;
  * label are centred.
  */
 public final class AllAppsActivity extends Activity {
+
+    /** Follows the launcher's own light/dark setting; see ThemeStore. */
+    @Override
+    protected void attachBaseContext(Context base) {
+        applyOverrideConfiguration(ThemeStore.override(base, ThemeStore.isDark(base)));
+        super.attachBaseContext(base);
+    }
 
     private static final int COLUMNS = 6;
 
@@ -71,7 +80,9 @@ public final class AllAppsActivity extends Activity {
             View tile = inflater.inflate(R.layout.view_allapps_tile, grid, false);
             ImageView icon = tile.findViewById(R.id.tile_icon);
             if (entry.icon != null) {
-                icon.setImageDrawable(IconNormalizer.normalize(this, entry.pkg, entry.icon, iconPx));
+                Drawable art = IconNormalizer.normalize(this, entry.pkg, entry.icon, iconPx);
+                icon.setImageDrawable(art);
+                TileGlass.apply(tile.findViewById(R.id.tile_card), entry.pkg, art);
             } else {
                 icon.setImageDrawable(getDrawable(R.drawable.kutu_icon));
             }

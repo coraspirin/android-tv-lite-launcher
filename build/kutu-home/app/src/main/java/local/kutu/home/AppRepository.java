@@ -26,6 +26,8 @@ final class AppRepository {
 
     /** Kept in one place so the launcher never lists the receiver it controls. */
     static final String MIRROR_PKG = "local.kutu.mirror";
+    /** The transfer app, like the mirror app, is reached from a chip - not the grid. */
+    static final String TRANSFER_PKG = "local.kutu.transfer";
 
     private AppRepository() {
     }
@@ -65,7 +67,8 @@ final class AppRepository {
             if (ri == null || ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
             if (pkg == null) continue;
-            if (pkg.equals(self) || pkg.equals(MIRROR_PKG)) continue;   // guide 23
+            if (pkg.equals(self) || pkg.equals(MIRROR_PKG)
+                    || pkg.equals(TRANSFER_PKG)) continue;              // guide 23
             if (sink.containsKey(pkg)) continue;
 
             CharSequence lbl = ri.loadLabel(pm);

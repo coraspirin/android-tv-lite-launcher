@@ -2,6 +2,7 @@ package local.kutu.home;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -25,6 +26,13 @@ import java.io.FileReader;
  * switch wherever the user put it.
  */
 public final class MirrorPanelActivity extends Activity {
+
+    /** Follows the launcher's own light/dark setting; see ThemeStore. */
+    @Override
+    protected void attachBaseContext(Context base) {
+        applyOverrideConfiguration(ThemeStore.override(base, ThemeStore.isDark(base)));
+        super.attachBaseContext(base);
+    }
 
     private static final int AIRPLAY_PORT = 7000;
     private static final String RECEIVER_CONTROL = "local.kutu.mirror.ReceiverControlActivity";

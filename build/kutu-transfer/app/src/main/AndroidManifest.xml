@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        INTERNET is what opens the ServerSocket; FOREGROUND_SERVICE keeps the session alive
+        while the human is looking at the screen.
+
+        Deliberately absent, unlike Kutu Mirror: RECEIVE_BOOT_COMPLETED and WAKE_LOCK. This
+        app only ever runs on demand, so it has no boot path and no session worth holding the
+        CPU awake for.
+
+        The storage pair is the widest thing this app holds and was not in the first version:
+        without it the browser can only see this app's own folder, which answered "put a file
+        on the box" but not "which of the box's files do I want". They are requested at
+        runtime from the session screen, and a refusal costs the browsing and nothing else -
+        the app's own folder needs no permission on API 28.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- so an APK the human just received can be handed to Android's own installer -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.faketouch" android:required="false" />
+
+    <application
+        android:allowBackup="false"
+        android:hardwareAccelerated="true"
+        android:label="@string/app_name"
+        android:supportsRtl="false"
+        android:theme="@style/TransferTheme"
+        android:usesCleartextTraffic="true">
+
+        <!--
+            No MAIN/LAUNCHER/LEANBACK_LAUNCHER filter anywhere: Kutu Home owns the entry
+            point, exactly as it does for Kutu Mirror.
+        -->
+
+        <!--
+            The session screen. NOT exported - nothing off the box can ask for it, and no
+            HTTP request can reach it. Guide 10: a network event must never open UI. Here the
+            causality only runs the other way, the screen is what creates the socket.
+        -->
+        <activity
+            android:name=".TransferActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize|screenLayout|smallestScreenSize"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape" />
+
+        <!--
+            Guide 11 shims: exported only because Kutu Home is a separate package. They take
+            no parameters, accept no commands, do one fixed thing and finish before they can
+            be drawn.
+        -->
+        <activity
+            android:name=".TransferControlActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay" />
+
+        <activity
+            android:name=".TransferStopActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay" />
+
+        <service
+            android:name=".TransferService"
+            android:exported="false" />
+
+        <!--
+            Our own provider, not androidx's FileProvider: this app has zero dependencies and
+            the support library is not available to it. It serves read-only handles to files
+            in the one shared folder and nothing else.
+        -->
+        <provider
+            android:name=".SharedFileProvider"
+            android:authorities="local.kutu.transfer.files"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
+    </application>
+
+</manifest>

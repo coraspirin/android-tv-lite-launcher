@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Utility chip. Same material as a tile, at the pill radius. Also used by the
-     mirror panel's Switch, which is why the focused state has to stand on its own. -->
+<!-- The same glass as a chip, round. Built from the chip tokens rather than its own, so
+     it follows the theme and any later tuning of the chips for free. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
-        <shape android:shape="rectangle" android:dither="true">
+        <shape android:shape="oval" android:dither="true">
             <gradient
                 android:angle="270"
                 android:type="linear"
                 android:startColor="@color/chip_focus_top"
                 android:endColor="@color/chip_focus_bottom" />
-            <corners android:radius="@dimen/chip_radius" />
             <stroke android:width="2dp" android:color="@color/glass_specular" />
         </shape>
     </item>
     <item>
-        <shape android:shape="rectangle" android:dither="true">
+        <shape android:shape="oval" android:dither="true">
             <gradient
                 android:angle="270"
                 android:type="linear"
                 android:startColor="@color/chip_glass_top"
                 android:endColor="@color/chip_glass_bottom" />
-            <corners android:radius="@dimen/chip_radius" />
             <stroke android:width="1dp" android:color="@color/glass_edge" />
         </shape>
     </item>

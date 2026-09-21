@@ -1,42 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--
+        Liquid glass palette.
+
+        The supplied background is a very light, very smooth gradient. Dark glass and real
+        translucency are mutually exclusive on it: a dark panel at the opacity needed to read
+        as "glass" lands around #8893A6, where white text falls to ~2.5:1 contrast. So every
+        glass surface is white-tinted and every glass text colour is dark.
+
+        There is no runtime blur (guide 17, and RenderEffect is API 31 while the box is API 28),
+        but the wallpaper carries no high-frequency detail, so a blur of it would be
+        indistinguishable from the wallpaper itself. Layered white translucency plus a vertical
+        sheen reproduces the whole effect at no GPU cost.
+    -->
+
     <!-- guide 18: dark navy / charcoal text over the light supplied background -->
     <color name="ink">#FF16233A</color>
     <color name="ink_dim">#FF55647C</color>
-    <color name="ink_on_glass">#FFEDF2F8</color>
-    <color name="ink_on_glass_dim">#FFA9B6C6</color>
+    <!-- glass is light now, so "on glass" text is dark, a shade deeper than plain ink
+         because it sits on a brighter surface -->
+    <color name="ink_on_glass">#FF101C30</color>
+    <color name="ink_on_glass_dim">#FF4A5A72</color>
 
-    <!-- one centered translucent dark-glass shelf -->
-    <color name="shelf_glass">#C20D1626</color>
-    <color name="shelf_stroke">#2BFFFFFF</color>
+    <!-- day: the wallpaper is used as supplied. The dark theme dims it through this
+         same token rather than shipping a second image (guide 17). -->
+    <color name="bg_scrim">#00000000</color>
 
-    <!-- tiles -->
-    <color name="tile_face">#FF14202E</color>
-    <color name="tile_face_focused">#FF1E2E42</color>
+    <!-- shared glass edges: a white hairline reads strongly against the wallpaper's darker
+         blue upper-left and fades where the wallpaper is bright, so it self-modulates -->
+    <color name="glass_edge">#99FFFFFF</color>
+    <color name="glass_specular">#E6FFFFFF</color>
+
+    <!-- one centered translucent light-glass shelf; bright at the top, dimmer at the bottom -->
+    <color name="glass_shelf_top">#73FFFFFF</color>
+    <color name="glass_shelf_mid">#4DFFFFFF</color>
+    <color name="glass_shelf_bottom">#38FFFFFF</color>
+
+    <!-- tiles: composited ON TOP of the shelf glass, so ~35% over ~35% reads as ~58%.
+         That nesting is what gives the dock its layered depth. -->
+    <color name="tile_face_top">#59FFFFFF</color>
+    <color name="tile_face_bottom">#26FFFFFF</color>
+    <color name="tile_focus_top">#F2FFFFFF</color>
+    <color name="tile_focus_bottom">#BFFFFFFF</color>
+    <!-- the base TileGlass builds a card from, so the cards follow the theme too -->
+    <color name="tile_glass_base">#FFFFFFFF</color>
+
+    <!-- the near-black plate IconNormalizer bakes behind a mostly-transparent logo stays dark:
+         a light plate would erase light logos, and guide 18.5 asks for near-black -->
     <color name="tile_transparent_logo_bg">#FF0E1520</color>
-    <color name="tile_missing">#FF2A3342</color>
 
     <!-- focus accent, sampled from the background's blue -->
     <color name="accent">#FF7FC4F5</color>
-    <color name="accent_glow">#8C7FC4F5</color>
+    <!-- the pale accent washes out on light glass; strokes and glyphs that must read use this -->
+    <color name="accent_deep">#FF2F7FB8</color>
+    <!-- a pale-blue drop shadow is invisible over a light surface, so the lift shadow is
+         darkened; without this the 6dp focus lift simply disappears -->
+    <color name="accent_glow">#A62B6E9E</color>
 
     <!-- chips -->
-    <color name="chip_glass">#B00D1626</color>
-    <color name="chip_glass_focused">#F0223A5C</color>
+    <color name="chip_glass_top">#66FFFFFF</color>
+    <color name="chip_glass_bottom">#33FFFFFF</color>
+    <color name="chip_focus_top">#F2FFFFFF</color>
+    <color name="chip_focus_bottom">#BFFFFFFF</color>
 
-    <!-- receiver on/off switch in the mirror panel -->
+    <!-- receiver on/off switch in the mirror panel; a white track is invisible on light glass -->
     <color name="switch_thumb_off">#FF8C99AB</color>
-    <color name="switch_track_off">#40FFFFFF</color>
+    <color name="switch_track_off">#3316233A</color>
     <color name="switch_track_on">#807FC4F5</color>
 
-    <!-- menus / panels -->
-    <color name="veil">#8C0A111C</color>
-    <color name="menu_glass">#F21A2740</color>
-    <color name="menu_row_focused">#FF27405F</color>
-    <color name="divider">#1FFFFFFF</color>
+    <!-- menus / panels: a light frost rather than a dark scrim, so an overlay is the same
+         material as the dock instead of a mode switch -->
+    <color name="veil">#B3DCE3ED</color>
+    <color name="menu_glass_top">#F2FFFFFF</color>
+    <color name="menu_glass_bottom">#D9F4F8FD</color>
+    <!-- white-on-white has no delta, so a focused row is tinted rather than brightened -->
+    <color name="menu_row_focused">#597FC4F5</color>
+    <color name="divider">#1F16233A</color>
 
-    <color name="state_ready">#FF6FD38A</color>
-    <color name="state_stopped">#FFE8A857</color>
-    <color name="state_unknown">#FFA9B6C6</color>
-    <color name="state_missing">#FFE2716B</color>
+    <!-- state lines in the mirror panel; the old pastels are unreadable on light frost -->
+    <color name="state_ready">#FF2E8B57</color>
+    <color name="state_stopped">#FFB26A14</color>
+    <color name="state_unknown">#FF4A5A72</color>
+    <color name="state_missing">#FFC0392B</color>
 </resources>

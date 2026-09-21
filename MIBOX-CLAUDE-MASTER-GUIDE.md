@@ -671,7 +671,20 @@ Use the final design, not the discarded prototype.
 - calm upper area
 - time/date top-right
 - dark navy/charcoal text over light background
-- one centered translucent dark-glass shelf low on screen
+- a round theme button in the top-left corner, mirroring the clock block top-right:
+  it switches the launcher between light and dark and remembers the choice
+- utility chips below the shelf: Ekran Yansitma, Ayarlar, Dosya Aktarimi, Tum Uygulamalar.
+  Dosya Aktarimi opens Kutu Transfer, a third app added after this guide was closed;
+  see KUTU-TRANSFER.md. Section 15's no-network rule is Kutu Home's own and still holds -
+  the launcher starts a component in that package and gains no permission from it.
+- one centered translucent light-glass shelf, centred vertically on screen
+  (was low on screen. The centring is computed from the shelf alone: the label above
+  and the chips below are anchored to it, so neither their size nor the move hint
+  appearing can shift the dock.)
+  (was dark glass. The supplied background is very light, so a dark pane cannot be
+  made genuinely translucent and stay readable: at the opacity that reads as glass it
+  lands near #8893A6, where white label text falls to ~2.5:1. Light glass with dark
+  text is the only combination that is both transparent and legible here.)
 - icons in one horizontal row
 - utility chips below:
   - Ekran Yansıtma
@@ -787,7 +800,7 @@ If already on Home:
 - Uygulamayı kaldır if allowed
 
 UI:
-- dark glass
+- light glass, matching the shelf
 - D-pad focus trapped
 - BACK closes
 - subtle veil
@@ -858,7 +871,7 @@ If local `/proc/net/tcp[6]` status is readable without network permission, use i
 
 If stopped, `Alıcıyı başlat` calls `ReceiverControlActivity`, never MirrorActivity.
 
-Panel must be centered dark glass, no square shadow artifact, BACK closes.
+Panel must be centered light glass, no square shadow artifact, BACK closes.
 
 ---
 

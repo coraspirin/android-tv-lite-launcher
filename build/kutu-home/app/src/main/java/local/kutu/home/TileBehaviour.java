@@ -29,7 +29,9 @@ final class TileBehaviour {
     }
 
     private static final long LONG_PRESS_MS = 520L;
-    private static final long ANIM_MS = 165L;
+    /** Package-visible: the chips animate on this same timing, so the whole screen
+     *  moves alike. Guide 18 asks for short ~150-180 ms animations. */
+    static final long ANIM_MS = 165L;
     private static final float FOCUS_SCALE = 1.14f;
     /**
      * Kept modest so the glow fits inside the shelf's clip box, and cheap on the

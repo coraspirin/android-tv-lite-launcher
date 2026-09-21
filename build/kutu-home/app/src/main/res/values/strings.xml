@@ -5,6 +5,8 @@
     <string name="chip_mirror">Ekran Yansıtma</string>
     <string name="chip_settings">Ayarlar</string>
     <string name="chip_all_apps">Tüm Uygulamalar</string>
+    <string name="chip_transfer">Dosya Aktarımı</string>
+    <string name="transfer_missing">Aktarım uygulaması kurulu değil</string>
 
     <string name="menu_move">Taşı</string>
     <string name="menu_remove">Ana ekrandan kaldır</string>
@@ -27,4 +29,7 @@
     <string name="settings_unavailable">Ayarlar açılamadı</string>
     <string name="tile_add">Uygulama ekle</string>
     <string name="on_home_suffix">ana ekranda</string>
+
+    <!-- content description only; the button shows an icon, never this text -->
+    <string name="theme_toggle">Temayı değiştir</string>
 </resources>
