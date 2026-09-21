@@ -6,7 +6,7 @@ A Claude Code + ADB workflow for optimizing older Android TV devices, adding Air
 
 Originally developed and tested on:
 
-- Xiaomi Mi Box 3
+- Xiaomi Mi Box 2/3
 - Android TV 9
 
 ## Full step-by-step guide
