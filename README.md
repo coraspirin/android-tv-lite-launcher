@@ -39,11 +39,6 @@ Plus:
 
 If you **clone the whole repository**, Claude starts from the tested source under `build/` and adapts it to your device instead of writing the apps from scratch. Either way, everything is rebuilt and signed locally with your own keys. No prebuilt APK is installed.
 
-## Full step-by-step guide
-
-- 🇹🇷 [Türkçe rehber](https://berksim.substack.com/p/mi-box-android-tv-rehberi)
-- 🇬🇧 [English guide](https://berksim.substack.com/p/mi-box-android-tv-guide-optimise)
-
 <img width="1920" height="1080" alt="Screenshot_20260921-182056" src="https://github.com/user-attachments/assets/bcbdc616-bc92-4697-876f-b9a9b852d44e" />
 
 ## Kutu Home background
