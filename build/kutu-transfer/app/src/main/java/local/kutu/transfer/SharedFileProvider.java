@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
  *
  * Written rather than inherited: this app has no dependencies, so androidx's FileProvider is
  * not available to it. Kutu Mirror deleted its FileProvider on the grounds that nothing was
- * saved to disk (UPSTREAM-AUDIT: "no saved screen/audio content"). This app does save, so the
+ * saved to disk (master guide section 8: "nothing is saved to disk"). This app does save, so the
  * capability comes back - narrowed to a single directory, read-only, and not exported.
  *
  * The path check is the whole security of it: a caller can only ever name a file that

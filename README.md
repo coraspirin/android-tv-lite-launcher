@@ -18,7 +18,7 @@ Originally developed and tested on:
 
 <img width="1513" height="853" alt="resim2" src="https://github.com/user-attachments/assets/a52f4f4e-9624-42ed-b0c6-b199929f65bc" />
 
-Download this file and give it to Claude Code after your Android TV device is connected over ADB.
+Download this file and give it to Claude Code after your Android TV device is connected over ADB. It is the only file needed: the final design and every lesson from the reference run are in it. If you clone the whole repository, Claude starts from the tested source under `build/` and adapts it to your device.
 
 Claude uses it to:
 
@@ -26,10 +26,13 @@ Claude uses it to:
 - create a read-only baseline
 - build a reversible rollback system
 - perform conservative debloating
-- build and test Kutu Mirror
-- build and test Kutu Home
+- build and test Kutu Mirror (AirPlay screen mirroring + AirPlay Video)
+- build and test Kutu Home (liquid-glass launcher with light/dark theme)
+- build and test Kutu Transfer (PIN-protected browser file transfer)
 - safely replace the stock launcher where appropriate
 - perform final security and performance checks
+
+`KUTU-HOME.md`, `KUTU-MIRROR.md` and `KUTU-TRANSFER.md` are the build and test records of the reference run on a Mi Box S; they are not needed to run the guide.
 
 <img width="1502" height="820" alt="resim3" src="https://github.com/user-attachments/assets/27a2305f-068c-4ebd-b98d-9388e2cf1104" />
 
