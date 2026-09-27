@@ -143,8 +143,10 @@
 
             Room for the focused tile's 114% scale and its glow now lives INSIDE the
             clip box, as padding on dock_row, so the hover effect is no longer cut off.
+            ShelfScrollView keeps it that way while scrolling: it only stops on whole
+            tiles, so the focused one is never pushed half outside the clip box.
         -->
-        <HorizontalScrollView
+        <local.kutu.home.ShelfScrollView
             android:id="@+id/shelf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -168,7 +170,7 @@
                 android:paddingTop="@dimen/row_padding"
                 android:paddingEnd="@dimen/row_padding"
                 android:paddingBottom="@dimen/row_padding" />
-        </HorizontalScrollView>
+        </local.kutu.home.ShelfScrollView>
 
         <!-- focused app name, shown once (guide 18) -->
         <TextView

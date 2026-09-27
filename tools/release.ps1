@@ -8,7 +8,7 @@
     kutu-versions.json - the file UpdateActivity reads - next to them in release\<Tag>\.
 
     With the GitHub CLI installed and logged in (gh auth login), it also creates the
-    release and uploads the four files. Otherwise it prints what to upload by hand.
+    release and uploads the five files (with install.ps1). Otherwise it prints what to upload by hand.
 
     Signing keys never leave this machine: the APKs are signed before they get here, and
     nothing in this script reads keys\.
@@ -90,6 +90,9 @@ foreach ($a in $apps) {
 $json = [ordered]@{ release = $Tag; apps = $versions } | ConvertTo-Json -Depth 4
 # UTF-8 without BOM: org.json on the box does not expect one
 [System.IO.File]::WriteAllText((Join-Path $out 'kutu-versions.json'), $json, (New-Object System.Text.UTF8Encoding $false))
+# the one-command installer rides along, so releases/latest/download/install.ps1 is
+# always the script that was published with these APKs, never an untested main
+Copy-Item (Join-Path $root 'install.ps1') (Join-Path $out 'install.ps1')
 Write-Host "Hazır: $out"
 
 if ($DryRun) { Write-Host 'DryRun: yayınlanmadı.'; return }
@@ -99,7 +102,7 @@ if (-not $gh) {
     Write-Host ''
     Write-Host 'GitHub CLI (gh) yok. Elle yayınlamak için:'
     Write-Host "  1. https://github.com/$repo/releases/new adresinde etiket olarak $Tag girin"
-    Write-Host "  2. $out içindeki dört dosyayı yükleyin (3 APK + kutu-versions.json)"
+    Write-Host "  2. $out içindeki beş dosyayı yükleyin (3 APK + kutu-versions.json + install.ps1)"
     Write-Host '  3. "Set as the latest release" işaretli olarak yayınlayın'
     return
 }

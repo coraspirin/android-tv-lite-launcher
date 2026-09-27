@@ -49,6 +49,8 @@ public final class HomeActivity extends Activity {
      */
     private static final float CHIP_FOCUS_SCALE = 1.06f;
     private static final float CHIP_FOCUS_LIFT_DP = 4f;
+    /** how far the tile being moved rises above the row (guide 22) */
+    private static final float MOVE_LIFT_DP = 8f;
     /** the settings button is small, so it grows more on focus to show where focus is */
     private static final float SETTINGS_FOCUS_SCALE = 1.35f;
 
@@ -296,7 +298,6 @@ public final class HomeActivity extends Activity {
         applyBackgroundIfChanged();
 
         visibleTiles = HomeSettings.visibleTiles(this);
-        tileScale = computeTileScale(visibleTiles);
 
         updateClock();
         rebuildDock();
@@ -547,6 +548,8 @@ public final class HomeActivity extends Activity {
 
     private void renderDock(String focusPkg) {
         dockRow.removeAllViews();
+        // shrink only for tiles actually on screen: nine slots holding seven apps keep full size
+        tileScale = computeTileScale(Math.min(visibleTiles, Math.max(1, dock.size())));
 
         if (dock.isEmpty()) {
             dockRow.addView(buildAddTile());
@@ -870,7 +873,9 @@ public final class HomeActivity extends Activity {
     private void markMoveTile(boolean lifted) {
         if (moveIndex < 0 || moveIndex >= dockRow.getChildCount()) return;
         View tile = dockRow.getChildAt(moveIndex);
-        tile.setTranslationY(lifted ? -14f * getResources().getDisplayMetrics().density : 0f);
+        // on top of the 114% focus scale this keeps the card inside the shelf's clip box;
+        // 14dp pushed its top edge past row_padding and cut it flat
+        tile.setTranslationY(lifted ? -MOVE_LIFT_DP * getResources().getDisplayMetrics().density : 0f);
     }
 
     /** Package currently in move mode, so focus can stay on it once the move ends. */
