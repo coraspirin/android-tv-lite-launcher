@@ -39,7 +39,7 @@ Type the IP when asked. When the TV asks, choose **Always allow from this comput
 
 You can run it again at any time. Anything already up to date is skipped.
 
-After that the PC is no longer needed. Updates come from the TV itself: **Kutu Home → ⚙ (top left) → Güncellemeleri denetle**.
+After that the PC is no longer needed. Updates come from the TV itself: **Kutu Home → ⚙ (top left) → Check for updates**.
 
 <details>
 <summary>Türkçe kısa kurulum</summary>
@@ -60,22 +60,24 @@ Everything speaks English and Turkish. The TV apps follow the TV's language, the
 |---|---|---|
 | **Kutu Home** | `local.kutu.home` | Liquid-glass launcher with a centred shelf, focus rings coloured by each app's icon, a light, dark or automatic theme, the Wi-Fi name and the remote's battery under the clock, and a background chosen from your own photos. It has no network permission, no background service and 0 % idle CPU |
 | **Kutu Mirror** | `local.kutu.mirror` | AirPlay receiver named **Kutu**. It mirrors an iPhone, iPad or Mac screen with sound, follows the phone when it rotates, and plays AirPlay Video. It uses hardware H.264 only and holds no wakelock while idle. It never opens its screen from a bare network connection |
-| **Kutu Aktarım** | `local.kutu.transfer` | On-demand, PIN-protected file transfer from any browser on your network. You can upload, download and install APKs. Close the screen and the port closes with it. It also delivers background photos to Kutu Home and installs updates from GitHub Releases |
+| **Kutu Transfer** (Kutu Aktarım) | `local.kutu.transfer` | On-demand, PIN-protected file transfer from any browser on your network. You can upload, download and install APKs. Close the screen and the port closes with it. It also delivers background photos to Kutu Home and installs updates from GitHub Releases |
 
 ## Screens
+
+Shown with the TV set to English; on a Turkish TV every screen is the same in Turkish.
 
 | | |
 |---|---|
 | ![Home, light theme](docs/screenshots/home-light.png) | ![Home, dark theme](docs/screenshots/home-dark.png) |
 | Home: shelf, chips, clock with Wi-Fi name and remote battery | Dark theme, by hand or automatically in the evening |
 | ![Scrolled shelf with page dots](docs/screenshots/home-scrolled.png) | ![Moving a tile](docs/screenshots/move.png) |
-| More apps than the shelf shows: it scrolls by whole tiles, with page dots | Long press → Taşı: ◀ ▶ moves, OK saves, BACK cancels |
+| More apps than the shelf shows: it scrolls by whole tiles, with page dots | Long press → Move: ◀ ▶ moves, OK saves, BACK cancels |
 | ![Tile menu](docs/screenshots/menu-dark.png) | ![All apps](docs/screenshots/allapps.png) |
 | Long-press menu on a home tile | All apps; a dot marks the ones already on the shelf |
 | ![All apps menu](docs/screenshots/allapps-menu.png) | ![Kutu Home settings](docs/screenshots/settings.png) |
-| Adding an app to the home screen | ⚙ settings: theme, background, how many apps the shelf shows, updates |
+| Adding an app to the home screen | ⚙ settings: theme, background, how many apps the shelf shows, updates, versions |
 | ![Settings, dark](docs/screenshots/settings-dark.png) | ![Background picker](docs/screenshots/background.png) |
-| Settings in the dark theme | Background picker: photos sent from a phone through Kutu Aktarım |
+| Settings in the dark theme | Background picker: photos sent from a phone through Kutu Transfer |
 | ![Screen mirroring panel](docs/screenshots/mirror-panel.png) | ![File transfer](docs/screenshots/transfer.png) |
 | Screen mirroring on/off | File transfer session: address and one-time PIN (example values) |
 | ![Updates](docs/screenshots/update.png) | |
@@ -102,7 +104,7 @@ If you **clone the whole repository**, Claude starts from the tested source unde
 | `MIBOX-CLAUDE-MASTER-GUIDE.md` | the build workflow for Claude Code |
 | `build/kutu-home/` | Kutu Home source (plain Java, zero dependencies) |
 | `build/kutu-mirror/` | Kutu Mirror source, a GPL-3.0 fork of [jqssun/android-airplay-server](https://github.com/jqssun/android-airplay-server) |
-| `build/kutu-transfer/` | Kutu Aktarım source (plain Java, zero dependencies) and its page tests |
+| `build/kutu-transfer/` | Kutu Transfer source (plain Java, zero dependencies) and its page tests |
 | `build/assets/kutu-home-background.png` | default wallpaper |
 | `RESTORE-ALL.ps1`, `PROJECT-PACKAGES.txt`, `PRESERVED-PRIOR-DISABLES.txt` | rollback for the reference box |
 | `KUTU-HOME.md`, `KUTU-MIRROR.md`, `KUTU-TRANSFER.md` | build and test records of the reference box |
@@ -124,7 +126,7 @@ Results depend on the device. Don't expect identical numbers on other hardware.
 - The installer's debloat list was checked on a Mi Box S only. On any other box it skips that step and only installs the apps and sets the home screen.
 - Every system-package change is reversible. To undo them, turn USB debugging back on (Kutu Home → Ayarlar → Device Preferences → Developer options) and follow the file the installer saved in `Documents\Kutu\`, or run `RESTORE-ALL.ps1`.
 - If you build your own releases, back up the `keys/` folder somewhere outside the repository. Without it the Kutu apps can never be updated in place.
-- Building Kutu Mirror on Windows requires WSL2 (Ubuntu). Kutu Home and Kutu Aktarım build on Windows directly.
+- Building Kutu Mirror on Windows requires WSL2 (Ubuntu). Kutu Home and Kutu Transfer build on Windows directly.
 
 ## Credits
 
