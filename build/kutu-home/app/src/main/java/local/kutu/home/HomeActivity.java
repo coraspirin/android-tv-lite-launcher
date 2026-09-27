@@ -49,6 +49,8 @@ public final class HomeActivity extends Activity {
      */
     private static final float CHIP_FOCUS_SCALE = 1.06f;
     private static final float CHIP_FOCUS_LIFT_DP = 4f;
+    /** the settings button is small, so it grows more on focus to show where focus is */
+    private static final float SETTINGS_FOCUS_SCALE = 1.35f;
 
     /** the entry animation: short, and only a small slide so a weak GPU is not taxed */
     private static final long ENTRY_ANIM_MS = 160L;
@@ -105,6 +107,10 @@ public final class HomeActivity extends Activity {
     private long backgroundStamp = Long.MIN_VALUE;
 
     private static final int REQ_LOCATION = 41;
+    /** let the home screen settle first: a dialog raised while it restarts closes at once */
+    private static final long ASK_DELAY_MS = 1500L;
+
+    private boolean resumed;
 
     /** renderDock sentinel: lay the shelf out but leave focus alone, the caller places it */
     private static final String KEEP_FOCUS = "\u0000keep-focus";
@@ -195,7 +201,7 @@ public final class HomeActivity extends Activity {
      * screen itself carries no theme button any more.
      */
     private void buildTopButtons() {
-        attachGlassFocus(settingsButton, CHIP_FOCUS_SCALE, new Runnable() {
+        attachGlassFocus(settingsButton, SETTINGS_FOCUS_SCALE, new Runnable() {
             @Override
             public void run() {
                 rememberTop(R.id.settings_button);
@@ -305,6 +311,7 @@ public final class HomeActivity extends Activity {
             pendingEntryAnimation = false;
             playEntryAnimation();
         }
+        resumed = true;
         askForWifiNameOnce();
     }
 
@@ -315,22 +322,34 @@ public final class HomeActivity extends Activity {
      */
     private void askForWifiNameOnce() {
         if (HomeSettings.canReadWifiName(this) || HomeSettings.askedLocation(this)) return;
-        HomeSettings.setAskedLocation(this);
-        try {
-            requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
-        } catch (Exception ignored) {
-        }
+        settingsButton.removeCallbacks(askLocation);
+        settingsButton.postDelayed(askLocation, ASK_DELAY_MS);
     }
+
+    private final Runnable askLocation = new Runnable() {
+        @Override
+        public void run() {
+            if (!resumed || HomeSettings.canReadWifiName(HomeActivity.this)) return;
+            try {
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
+            } catch (Exception ignored) {
+            }
+        }
+    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(requestCode, permissions, results);
-        if (requestCode == REQ_LOCATION) networkStatus.refresh();
+        if (requestCode != REQ_LOCATION) return;
+        // an empty result means the dialog was dismissed without an answer: ask again next time
+        if (results.length > 0) HomeSettings.setAskedLocation(this);
+        networkStatus.refresh();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        resumed = false;
         // guide 22: leaving before confirm cancels the move safely
         if (moveIndex >= 0) cancelMove();
         if (openMenu != null && openMenu.isShowing()) {

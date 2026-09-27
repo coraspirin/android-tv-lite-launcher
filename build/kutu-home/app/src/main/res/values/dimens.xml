@@ -20,9 +20,9 @@
     <dimen name="chip_radius">20dp</dimen>
     <dimen name="chip_gap">12dp</dimen>
 
-    <!-- round theme button, top-left; mirrors the clock block at top-right -->
-    <dimen name="theme_toggle">44dp</dimen>
-    <dimen name="theme_toggle_icon">22dp</dimen>
+    <!-- round settings button, top-left: deliberately small, half the old theme button -->
+    <dimen name="settings_button">22dp</dimen>
+    <dimen name="settings_button_pad">3dp</dimen>
     <!-- status line under the date: Wi-Fi and the remote's battery -->
     <dimen name="status_icon">16dp</dimen>
     <dimen name="status_text">14sp</dimen>

@@ -151,26 +151,28 @@ public final class SettingsActivity extends Activity {
 
     /**
      * Asks for location access, which is all Android 9 wants before it shows the Wi-Fi
-     * network's name. If the human once chose "don't ask again", Android refuses silently,
-     * so the app's own settings page is opened instead, where it can be switched on.
+     * network's name. Always the dialog first; only when Android answers "denied" without
+     * showing it (the human once chose "don't ask again") is the app's own settings page
+     * opened, where the permission can be switched on by hand.
      */
     private void askForWifiName() {
         if (HomeSettings.canReadWifiName(this)) return;
-        String perm = android.Manifest.permission.ACCESS_COARSE_LOCATION;
-        if (HomeSettings.askedLocation(this) && !shouldShowRequestPermissionRationale(perm)) {
-            try {
-                startActivity(AppRepository.appInfoIntent(getPackageName()));
-                return;
-            } catch (Exception ignored) {
-            }
-        }
-        HomeSettings.setAskedLocation(this);
-        requestPermissions(new String[]{perm}, REQ_LOCATION);
+        requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(requestCode, permissions, results);
+        if (requestCode != REQ_LOCATION) return;
+        if (results.length > 0) HomeSettings.setAskedLocation(this);
+        boolean granted = results.length > 0 && results[0] == android.content.pm.PackageManager.PERMISSION_GRANTED;
+        if (!granted && results.length > 0
+                && !shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            try {
+                startActivity(AppRepository.appInfoIntent(getPackageName()));
+            } catch (Exception ignored) {
+            }
+        }
         refresh();
     }
 

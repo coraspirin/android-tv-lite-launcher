@@ -96,7 +96,12 @@ final class HomeSettings {
 
     // ------------------------------------------------------------ Wi-Fi name
 
-    private static final String KEY_ASKED_LOCATION = "asked_location_v1";
+    /**
+     * Set only once the human has actually answered the dialog. v1 was set as soon as the
+     * dialog was shown, and on the first run after an update the dialog closed by itself
+     * while the launcher restarted - so it was never answered and never shown again.
+     */
+    private static final String KEY_ASKED_LOCATION = "asked_location_v2";
 
     /** Android 9 shows the Wi-Fi network's name only to an app with location access. */
     static boolean canReadWifiName(Context ctx) {
@@ -104,7 +109,7 @@ final class HomeSettings {
                 == android.content.pm.PackageManager.PERMISSION_GRANTED;
     }
 
-    /** The launcher asks for it by itself only once; after that only the settings row asks. */
+    /** The launcher asks by itself until the human answers once; after that only the settings row asks. */
     static boolean askedLocation(Context ctx) {
         return prefs(ctx).getBoolean(KEY_ASKED_LOCATION, false);
     }
