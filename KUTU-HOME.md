@@ -532,4 +532,50 @@ in dark mode.
 - ~~`AppRepository.MIRROR_PKG` (`local.kutu.mirror`) does not exist yet~~ - Kutu Mirror
   is built and installed; see `KUTU-MIRROR.md`
 - Guide 33 final cleanup, 34 security review, 35/36 final report, 37 disable debugging
-- Kutu Mirror (guide 7-14) remains blocked on WSL
+- ~~Kutu Mirror (guide 7-14) remains blocked on WSL~~ - built, see `KUTU-MIRROR.md`
+
+## 1.1 to 1.2.2 - 2026-09-26/27
+
+Delivered to the box only through GitHub Releases and Kutu Aktarım's updater, not
+`adb install` (the human's rule since 1.2).
+
+| Version | versionCode | What changed |
+|---|---|---|
+| 1.2 | 3 | settings gear and `SettingsActivity`; automatic theme; Wi-Fi status line; remote battery; background picker; visible tile count 5-9; page dots; entry animation; chip icons; white "on home" dot in All Apps; All Apps columns from screen width; uninstalled favourites drop off the shelf |
+| 1.2.1 | 5 | the location permission dialog is actually shown (it used to auto-close during the update restart and was recorded as asked); gear halved to 22dp and made a solid icon |
+| 1.2.2 | 6 | shelf stops only on whole tiles (`ShelfScrollView`); tiles shrink only when more than 7 are shown; move-mode lift 14dp to 8dp |
+
+1.3 (versionCode 4) was published and withdrawn the same day, before any box took it.
+
+Release `v1.2.2`: `kutu-home.apk` SHA-256 `34a8216c997242b66887ea5497f4df29889684b43d0c4d9ff1a2b75e982f4a38`.
+Signing certificate unchanged (`22ae3b8a...6ef9b2`).
+
+Permissions now: `REQUEST_DELETE_PACKAGES`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`,
+`ACCESS_COARSE_LOCATION` (runtime, SSID only), `BLUETOOTH`. Still no `INTERNET`.
+
+### Found on this box while building it
+
+- The SSID is `<unknown ssid>` on API 28 without a location permission, and
+  `NetworkInfo.getExtraInfo()` is blank on this firmware, so there is no way round the permission.
+- The system battery is a fixed dummy (`ro.boot.fake_battery=42`). The remote ("Xiaomi RC",
+  BLE HID) answers a plain GATT read of Battery Service `0x180F`; first reading 28 %.
+- There is no document picker (`DocumentsStub`), which is why backgrounds come in through Kutu
+  Aktarım's "Arka planlar" folder.
+
+### Tested on the box, 2026-09-27 (1.2.1, ADB keys only while the human was hands off)
+
+| Test | Result |
+|---|---|
+| Wi-Fi line | icon + "Erdogan" after the permission was granted |
+| Remote battery | %28 shown |
+| Visible tiles 5 / 7 / 9 | 5 full-size tiles with page dots, 7 full size, 9 shrank (fixed in 1.2.2: only when more than 7 are shown) |
+| Page dots | 2 dots for 7 apps at N=5; active dot follows the scroll |
+| Entry animation | 3 returns from Android Settings via HOME: 16 frames, 7 over 16 ms (43.8 %), median 18 ms, 90th 48 ms; the slow frames are the first ones after the window comes back |
+| Uninstall prune | a throwaway `local.kutu.testdummy` added from All Apps, focused, then `adb uninstall`ed: tile gone at once, focus on the neighbour (tabii). Test app removed |
+| Move mode | lift, move, BACK restores the order. Lifted card's top was clipped (fixed in 1.2.2) |
+| Scrolled shelf | at the end of the shelf a sliver of the previous card showed and the focused ring was cut on the right (fixed in 1.2.2) |
+| All Apps | 7 columns, centred, white dots on shelf apps |
+| Background picker | 5 photos listed; thumbnails of 5000 px+ progressive JPEGs take about 10 s to appear |
+| Dark theme | settings card, home, long-press menu and move mode all checked |
+
+1.2.2, installed on the box through the updater and checked by screenshot the same day: at N=9 the seven apps keep full size; at N=5 the shelf rests on whole tiles scrolling both ways, with the focused ring intact at the end; the lifted card in move mode is no longer cut; BACK still restores the order.

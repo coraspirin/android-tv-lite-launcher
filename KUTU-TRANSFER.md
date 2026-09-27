@@ -259,3 +259,25 @@ Second round, folder browsing, same device and build discipline:
 - `FileProvider` was deliberately removed from Kutu Mirror because nothing was saved to
   disk. This app saves, so an equivalent came back — written by hand, since the app has no
   dependencies, scoped to one directory and read-only.
+
+## 1.1 - 2026-09-26: backgrounds and GitHub updates
+
+versionCode 2. Release `v1.2.2`: `kutu-transfer.apk` SHA-256
+`8753590cfda02561ef33683c02ccd01d0700a94b61af096e00df40177f0abca3`.
+
+- `Arka planlar/` is created in the app's own folder on every start; the browser page shows a
+  hint when it is open, since that is where photos for Kutu Home's background go.
+- `BackgroundProvider` (`local.kutu.transfer.backgrounds`, exported, read-only): only that
+  folder's direct children, only images. Checked on the box: `content query` on
+  `..%2F..` traversal, a non-image file, `write` and `delete` were all refused; listing and
+  reading the photos worked, and Kutu Home applied one with the right EXIF rotation.
+- `UpdateActivity` (exported, parameterless, has a screen): GitHub `releases/latest`, then
+  `kutu-versions.json`; SHA-256, package name, higher `versionCode` and signing certificate
+  must all match before a `PackageInstaller` session is opened. `UpdateStatusReceiver` is not
+  exported. The first real update (Kutu Home 1.1 to 1.2) went through on the box and the human
+  confirmed it; 1.2 to 1.2.1 followed the same way.
+- The network is only touched while the update screen is open; there is no background check.
+
+The "Install unknown apps" toggle noted above is now set by `install.ps1`
+(`appops set local.kutu.transfer REQUEST_INSTALL_PACKAGES allow`) on boxes it sets up, so the
+updater works without a detour through Settings. On this box it was set by hand earlier.

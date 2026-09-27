@@ -123,6 +123,22 @@ Never install prebuilt APKs from the repo or upstream onto a device without rebu
 
 ---
 
+# 1B. One-command install and updates (the owner's own releases)
+
+Section 1A is for building the apps for a new owner. Once an owner has their own signed builds, they do not need Claude to put them on another box of theirs:
+
+```powershell
+irm https://github.com/<owner>/<repo>/releases/latest/download/install.ps1 | iex
+```
+
+`install.ps1` (repo root) asks only for the TV's IP and then, in order: downloads Google's `platform-tools` if no `adb` is found; connects and waits for the on-TV authorisation; refuses boxes below API 28 or without `armeabi-v7a`; reads the latest Release's `kutu-versions.json` and downloads the three APKs, **stopping if any SHA-256 differs**; installs Mirror, then Transfer, then Home (only when missing or older, never uninstalls); grants Home `ACCESS_COARSE_LOCATION` and Transfer the storage permissions and the `REQUEST_INSTALL_PACKAGES` app-op; on a Mi Box S (`MIBOX4`) only, disables the section 5 list minus the voice stack and the stock launcher; makes Kutu Home HOME (disabling the stock launcher only if `set-home-activity` alone does not win), reboots and re-checks; writes every change and its undo to `Documents/Kutu/<model>-<date>-geri-al.txt`; and finally turns ADB off (section 37). It is idempotent; `-DryRun` changes nothing.
+
+The script body is ASCII on purpose: user-facing Turkish is stored as `\uXXXX` escapes and decoded at run time, so it survives whatever encoding `irm` guesses. Do not use `exit` in it (under `iex` that closes the user's window) and do not assign `$Home` (a read-only automatic variable).
+
+Releases are made with `tools/release.ps1 -Tag vX.Y.Z` after bumping `versionCode`: it collects the three signed APKs, writes `kutu-versions.json` and publishes them together with `install.ps1`, so `releases/latest/download/install.ps1` is always the script that shipped with those APKs. After that, boxes update themselves: Kutu Home gear > Güncellemeleri denetle (section 28A). Signing keys never leave the build machine.
+
+---
+
 # 2. Phase 1: complete READ-ONLY baseline
 
 Do not reboot, kill processes or change settings.
@@ -775,7 +791,11 @@ Architecture:
 - essentially zero idle CPU (reference: 0.0 % over 60 s)
 - release: `minifyEnabled`, `shrinkResources`, `allowBackup=false`, `debuggable=false`
 
-The **only** permission is `REQUEST_DELETE_PACKAGES`, for Android's uninstall-confirmation UI.
+Permissions, all install-time except one, and still **no network permission**:
+- `REQUEST_DELETE_PACKAGES`: Android's uninstall-confirmation UI
+- `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`: the Wi-Fi line under the clock
+- `ACCESS_COARSE_LOCATION` (runtime): on API 28 the SSID is hidden without it; used for nothing else. Asked once, 1.5 s after the home screen settles, and recorded only when actually answered; the Wi-Fi adı row in settings asks again. `install.ps1` grants it up front.
+- `BLUETOOTH`: reads the remote's battery over BLE GATT (Battery Service `0x180F`, Battery Level `0x2A19`), at most every 30 minutes with an 8 s timeout; hidden if the remote has no such service
 
 Never silently uninstall.
 
@@ -785,7 +805,14 @@ Reference source layout (`build/kutu-home/app/src/main/java/local/kutu/home/`):
 
 | Class | Role |
 |---|---|
-| `HomeActivity` | clock, theme button, shelf, chips, move mode, focus memory |
+| `HomeActivity` | clock and status line, settings gear, shelf, page dots, chips, move mode, focus memory, entry animation |
+| `SettingsActivity` | the gear's glass card: theme mode and auto hours, background, visible tile count, Wi-Fi name, update check, versions |
+| `BackgroundActivity` | background picker, reads Kutu Transfer's read-only `BackgroundProvider` |
+| `HomeSettings` | visible tiles (5-9), background file, remote battery, location-asked flag |
+| `NetworkStatus` | default-network callback: Wi-Fi icon + SSID, Ethernet, or "Bağlı değil" |
+| `RemoteBattery` | BLE GATT battery read of the bonded remote |
+| `ShelfScrollView` | shelf scroller that only stops on whole tiles |
+| `PortState` | `/proc/net/tcp[6]` listener check for the mirror panel |
 | `AllAppsActivity` | grid of launchable apps |
 | `MirrorPanelActivity` | receiver state + switch |
 | `AppRepository` | app discovery; `MIRROR_PKG`, `TRANSFER_PKG` exclusions |
@@ -793,7 +820,7 @@ Reference source layout (`build/kutu-home/app/src/main/java/local/kutu/home/`):
 | `IconNormalizer` | normalized icon bitmaps + cache |
 | `TileGlass` | per-app glass drawables and icon-coloured focus ring |
 | `TileBehaviour` | focus animation, long press |
-| `ThemeStore` | light/dark override |
+| `ThemeStore` | light / dark / automatic (dark from 19:00, light from 07:00 by default) |
 | `KutuMenu` | glass context menu |
 
 ---
@@ -871,7 +898,8 @@ Dark palette (`values-night/colors.xml`): dark glass (roughly the pre-liquid-gla
 
 ## Layout (1920x1080, overscan-safe margins 48dp horizontal / 27dp vertical)
 
-- **Top-left:** round theme button (44dp, icon 22dp), mirroring the clock block.
+- **Top-left:** round settings button (22dp, solid gear, 1.35x on focus) opening `SettingsActivity`. The theme is chosen there, not on the home screen.
+- **Under the date:** status line: Wi-Fi icon + SSID (or "Bağlı değil"), then the remote's battery (orange at 20 % or less).
 - **Top-right:** time (34sp) and date (15sp, localized, e.g. `20 Eylül Pazar`), dark ink.
 - **Centre:** one translucent light-glass shelf, `layout_centerInParent` in a `RelativeLayout`. The shelf depends on nothing, so nothing a sibling does can move it. Verify by measuring a `screencap`: shelf centre must be y=540 of 1080, including in move mode and in dark theme.
 - **Above the shelf:** focused app name (20sp), shown once.
@@ -973,10 +1001,16 @@ Zero favourites:
 Fewer than 7:
 - shelf centred, shrinks to content (`clampShelfWidth()`)
 
-More than 7:
-- single row, ~7 visible slots
+Visible slots: 5-9, chosen in settings (default 7). Tiles shrink together only when more than 7 are actually on screen.
+
+Uninstalled favourites drop off the shelf (`ACTION_PACKAGE_REMOVED` without `EXTRA_REPLACING`, and a prune on every render); focus moves to the neighbour. A disabled app stays, dimmed.
+
+More than N:
+- single row, N visible slots
 - horizontal scroll inside shelf
 - clip hard to the rounded shelf outline (`clipToOutline`, `clipToPadding="true"`)
+- the scroller must stop on whole tiles (`ShelfScrollView` overrides `computeScrollDeltaToGetChildRectOnScreen`); the stock one adds its fading-edge length and comes to rest between tiles, showing a sliver of the previous card and pushing the focused tile's ring out of the clip box
+- page dots under the shelf while it scrolls, one per page of N
 - **no fading edge**: `requiresFadingEdge` only makes overflow semi-transparent, so half-icons stay visible under the gradient
 - never draw off-shelf icons
 
@@ -1076,7 +1110,12 @@ Exclude:
 - Kutu Transfer (`AppRepository.TRANSFER_PKG`)
 - internal/non-user-facing components
 
-Same two-layer tile, same normalized icons and icon-coloured ring. Centred title/wrapped labels.
+Same two-layer tile, same normalized icons and icon-coloured ring. Centred title/wrapped labels. Columns are computed from the screen width (7 at 1080p) and the grid is centred, so a row is always full before the next starts. Apps already on the shelf carry a small white dot.
+
+## Kutu Home settings (gear)
+`SettingsActivity`, a centred glass card. Rows: Tema (Açık / Koyu / Otomatik), Koyu tema başlangıcı and Açık tema başlangıcı (30-minute steps, focusable only in Otomatik), Arka plan (opens `BackgroundActivity`), Ana ekranda görünen uygulama (5-9), Wi-Fi adı, Güncellemeleri denetle (Kutu Transfer's `UpdateActivity` by explicit `ComponentName`), Sürüm (all three apps). LEFT/RIGHT act on key down, OK on key up: acting on down leaks the up into the next screen.
+
+The background is always chosen on the TV. Photos come from Kutu Transfer's "Arka planlar" folder; the chosen one is rotated by EXIF, centre-cropped to the real display size and saved once as a JPEG in Kutu Home's private files, so the home screen decodes one screen-sized image and the background survives Transfer being removed.
 
 ## Settings
 Use standard `Settings.ACTION_SETTINGS` first. Detect a firmware-specific fallback only if required. Do not hard-code a Xiaomi component on a non-Xiaomi device. On failure show "Ayarlar açılamadı".
@@ -1225,7 +1264,7 @@ Package: local.kutu.transfer
 Port: 8787
 ```
 
-Build: plain Java, platform Views, **zero dependencies**, no native code, builds on Windows with `gradlew assembleRelease` (~41 KB APK). Reference source: `build/kutu-transfer/` (`TransferActivity`, `TransferService`, `TransferServer`, `Http`, `Multipart`, `Page`, `Shared`, `SharedFileProvider`, `Net`, `TransferControlActivity`, `TransferStopActivity`). Own keystore (section 12).
+Build: plain Java, platform Views, **zero dependencies**, no native code, builds on Windows with `gradlew assembleRelease` (~50 KB APK). Reference source: `build/kutu-transfer/` (`TransferActivity`, `TransferService`, `TransferServer`, `Http`, `Multipart`, `Page`, `Shared`, `SharedFileProvider`, `Net`, `TransferControlActivity`, `TransferStopActivity`). Own keystore (section 12).
 
 ## Permissions
 `INTERNET`, `FOREGROUND_SERVICE`, `REQUEST_INSTALL_PACKAGES`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` (storage requested at runtime, see below). **Not** `RECEIVE_BOOT_COMPLETED`, **not** `WAKE_LOCK`: it only runs because someone asked seconds ago.
@@ -1290,6 +1329,12 @@ Pitfall: `PushbackInputStream.read(b,off,len)` drains pushback then **calls thro
 - real browser: navigate, download, upload via picker and drag-drop, progress bar
 - idle CPU 0.0 %, no service, no wakelock after a session
 - Kutu Home: 4 chips, shelf still centred, chip → session → BACK
+
+## Backgrounds and updates (Kutu Transfer 1.1)
+- **`BackgroundProvider`** (authority `local.kutu.transfer.backgrounds`, exported, **read-only**): lists and opens only the direct children of `Arka planlar/` in the app's own folder, only `jpg/jpeg/png/webp`, canonical-path checked; any write mode throws. The folder is created on every start and the browser page shows a hint inside it. The apps have different keys, so a signature permission is not possible: other apps on the box can read these photos too.
+- **`UpdateActivity`** (exported, parameterless, has a screen): only when the human opens it, calls `api.github.com/repos/<owner>/<repo>/releases/latest` over HTTPS, reads the `kutu-versions.json` asset and offers an update per app. A download (at most 64 MB, HTTPS only) is installed only if its SHA-256 matches, its package name matches, its `versionCode` is higher and its signing certificate equals the installed app's. Install goes through a `PackageInstaller` session and Android's own confirmation still gates it. Order: Mirror, Home, Transfer last (it replaces itself).
+- **`UpdateStatusReceiver`** is **not exported**: it launches the confirmation Intent it is handed, so an exported one would let any app start arbitrary activities through it.
+- No background checks: the network is touched only while the update screen is open.
 
 ## Risks to disclose
 - a second app on the box can request APK installs (always a deliberate press on the TV, Android confirmation still gates it; dropping the permission is a one-line change)
@@ -1451,7 +1496,7 @@ Short smoke test:
 Focus on this actual box:
 - every listening TCP/UDP port, attributed by uid
 - ADB/debugging (network ADB on 5555)
-- Kutu exported components (Mirror: 2 shims; Transfer: 2 shims)
+- Kutu exported components (Mirror: 2 shims; Transfer: 2 shims, `UpdateActivity`, read-only `BackgroundProvider`)
 - permissions
 - port 7000 (Mirror) and 8787 (Transfer, only during a session)
 - shims

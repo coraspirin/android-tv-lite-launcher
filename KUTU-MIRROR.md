@@ -400,6 +400,24 @@ The box was rebooted with no manual start afterwards.
 | /data free | 2.8 GB |
 | Crashes since boot | 0 |
 
+### Rotation re-tested, 2026-09-27
+
+Reported earlier as "stays in a portrait box after rotating". Re-run with the shipped 1.0
+(`66f66916...b918e`), iPhone, logcat recorded throughout, no key events:
+
+| | |
+|---|---|
+| Rotations | portrait, landscape, portrait, landscape, portrait in the first session; a second session held in landscape |
+| Logged sizes | 500x1080 and 1920x888, each change followed by `restarting decoder` and a new `Video codec started` at the new size |
+| Screenshot in landscape | picture full width, 1920x888 letterboxed top and bottom; correct |
+
+The decoder restart on a size change (`19a2e02`) is what fixed it, and it is already in 1.0.
+No Mirror change was needed; it stays at 1.0 (versionCode 1).
+
+The WSL build's `local.properties` still pointed at the old project path
+(`tv-debloat/keys/kutu-mirror.jks`) and would have failed to sign; it now points at this
+repository's `keys/`.
+
 ### Not yet run
 
 - **Mac**: native macOS Screen Mirroring, picture + sound, disconnect, cleanup. No Mac
