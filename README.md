@@ -54,6 +54,8 @@ Sonraki güncellemeler için bilgisayar gerekmez: Kutu Home → sol üstteki ça
 
 ## What you get
 
+Everything speaks English and Turkish. The TV apps follow the TV's language, the file transfer page follows the browser's language, and the installer follows Windows. Each one uses Turkish when that language is Turkish and English otherwise.
+
 | App | Package | What it does |
 |---|---|---|
 | **Kutu Home** | `local.kutu.home` | Liquid-glass launcher with a centred shelf, focus rings coloured by each app's icon, a light, dark or automatic theme, the Wi-Fi name and the remote's battery under the clock, and a background chosen from your own photos. It has no network permission, no background service and 0 % idle CPU |

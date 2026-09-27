@@ -281,3 +281,18 @@ versionCode 2. Release `v1.2.2`: `kutu-transfer.apk` SHA-256
 The "Install unknown apps" toggle noted above is now set by `install.ps1`
 (`appops set local.kutu.transfer REQUEST_INSTALL_PACKAGES allow`) on boxes it sets up, so the
 updater works without a detour through Settings. On this box it was set by hand earlier.
+
+## 1.2 - English - 2026-09-27
+
+versionCode 3. The TV screens follow the system language (`values/` English, `values-tr/`
+Turkish, 35 keys each); the app is called "Kutu Transfer" in English. The update screen takes the
+three app names from strings.
+
+The browser page follows the **browser's** language, since the phone may be set differently from
+the TV: Turkish when the first `Accept-Language` entry is `tr`, English otherwise. `Page` keeps one
+template with `{{key}}` slots and a `w(key, tr, en)` table and fills both languages once, when the
+class loads. Root names in listings and crumbs ("Kutu Klasörü"/"Kutu folder", "Dahili Depolama"/
+"Internal storage") follow the same request.
+
+`tools/extract.py` now writes both pages (`app.html`, `app-en.html`, ...); `browse-test.js` runs
+against either (`LANG_PAGE=en`). All checks pass in both languages.

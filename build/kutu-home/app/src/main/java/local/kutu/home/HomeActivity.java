@@ -87,6 +87,7 @@ public final class HomeActivity extends Activity {
     /** how many tiles the shelf shows before it scrolls, and the tile scale that fits them */
     private int visibleTiles = HomeSettings.VISIBLE_DEFAULT;
     private float tileScale = 1f;
+    private Locale uiLocale = Locale.getDefault();
 
     /**
      * What had focus when the launcher was last left. onResume rebuilds the dock, and
@@ -170,9 +171,10 @@ public final class HomeActivity extends Activity {
         batteryIcon = findViewById(R.id.battery_icon);
         batteryLabel = findViewById(R.id.battery_label);
 
-        Locale tr = new Locale("tr", "TR");
-        timeFormat = new SimpleDateFormat("HH:mm", tr);
-        dateFormat = new SimpleDateFormat("d MMMM EEEE", tr);
+        // the system language picks the words and the order: "27 Eylül Pazar" / "Sunday, 27 September"
+        uiLocale = getResources().getConfiguration().getLocales().get(0);
+        timeFormat = new SimpleDateFormat("HH:mm", uiLocale);
+        dateFormat = new SimpleDateFormat(getString(R.string.date_pattern), uiLocale);
 
         // guide 19: never draw an icon outside the rounded shelf
         shelf.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
@@ -422,7 +424,7 @@ public final class HomeActivity extends Activity {
         Date now = new Date();
         clockTime.setText(timeFormat.format(now));
         String date = dateFormat.format(now);
-        if (!date.isEmpty()) date = date.substring(0, 1).toUpperCase(new Locale("tr", "TR")) + date.substring(1);
+        if (!date.isEmpty()) date = date.substring(0, 1).toUpperCase(uiLocale) + date.substring(1);
         clockDate.setText(date);
     }
 

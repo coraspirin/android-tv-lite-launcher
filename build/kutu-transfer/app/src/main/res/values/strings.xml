@@ -1,38 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    English, the default. Android falls back to these for any system language that has
+    no folder of its own; values-tr holds the Turkish. Keep the two key sets identical.
+    The browser page is not here: Page.java picks its language from Accept-Language.
+-->
 <resources>
-    <string name="app_name">Kutu Aktarım</string>
+    <string name="app_name">Kutu Transfer</string>
 
-    <string name="session_title">Dosya Aktarımı</string>
-    <string name="session_hint">Telefonunda veya bilgisayarında bu adresi aç</string>
-    <string name="session_pin_label">Kod</string>
-    <string name="session_no_wifi">Ağ bağlantısı yok</string>
-    <string name="session_failed">Aktarım başlatılamadı</string>
-    <string name="session_close_hint">GERİ tuşu aktarımı kapatır</string>
-    <string name="session_empty">Kutu klasörü boş</string>
-    <string name="scope_full">Tarayıcıdan kutudaki tüm klasörlere bakabilirsin</string>
-    <string name="scope_limited">İzin verilmedi — tarayıcıda yalnızca Kutu klasörü görünür</string>
-    <string name="open_failed">Bu dosya açılamadı</string>
+    <string name="session_title">File Transfer</string>
+    <string name="session_hint">Open this address on your phone or computer</string>
+    <string name="session_pin_label">Code</string>
+    <string name="session_no_wifi">No network connection</string>
+    <string name="session_failed">Could not start the transfer</string>
+    <string name="session_close_hint">BACK closes the transfer</string>
+    <string name="session_empty">The Kutu folder is empty</string>
+    <string name="scope_full">You can browse every folder on the box from the browser</string>
+    <string name="scope_limited">Not allowed — the browser only shows the Kutu folder</string>
+    <string name="open_failed">Could not open this file</string>
 
-    <string name="update_title">Güncellemeler</string>
-    <string name="update_checking">GitHub’da yeni sürüm aranıyor…</string>
-    <string name="update_latest">Son yayın: %1$s</string>
-    <string name="update_no_release">Henüz yayınlanmış bir sürüm yok</string>
-    <string name="update_no_manifest">Son yayında sürüm listesi (kutu-versions.json) yok</string>
-    <string name="update_offline">Bağlantı kurulamadı. İnternet bağlantısını kontrol edin.</string>
-    <string name="update_row_new">%1$s    %2$s → %3$s    ·  Güncelle</string>
-    <string name="update_row_current">%1$s    %2$s    ·  Güncel</string>
-    <string name="update_row_missing">%1$s    ·  Kurulu değil</string>
-    <string name="update_downloading">%1$s indiriliyor…</string>
-    <string name="update_confirm">%1$s: televizyondaki kurulum onayını verin</string>
-    <string name="update_bad_hash">İndirilen dosya doğrulanamadı (SHA-256 uyuşmuyor). Kurulmadı.</string>
-    <string name="update_bad_signature">Bu sürüm farklı bir anahtarla imzalanmış. Kurulmadı.</string>
-    <string name="update_wrong_package">İndirilen dosya beklenen uygulama değil. Kurulmadı.</string>
-    <string name="update_not_newer">Kurulu sürüm zaten daha yeni</string>
-    <string name="update_done">Güncelleme tamamlandı</string>
-    <string name="update_failed">Güncelleme yapılamadı %1$s</string>
-    <string name="update_hint">Kutu Aktarım en son güncellenir: kendini güncelleyince bu ekran kapanır · GERİ kapatır</string>
+    <string name="name_mirror">Kutu Mirror</string>
+    <string name="name_home">Kutu Home</string>
+    <string name="name_transfer">Kutu Transfer</string>
+    <string name="update_title">Updates</string>
+    <string name="update_checking">Looking for a new version on GitHub…</string>
+    <string name="update_latest">Latest release: %1$s</string>
+    <string name="update_no_release">No release has been published yet</string>
+    <string name="update_no_manifest">The latest release has no version list (kutu-versions.json)</string>
+    <string name="update_offline">Could not connect. Check the internet connection.</string>
+    <string name="update_row_new">%1$s    %2$s → %3$s    ·  Update</string>
+    <string name="update_row_current">%1$s    %2$s    ·  Up to date</string>
+    <string name="update_row_missing">%1$s    ·  Not installed</string>
+    <string name="update_downloading">Downloading %1$s…</string>
+    <string name="update_confirm">%1$s: confirm the installation on the TV</string>
+    <string name="update_bad_hash">The downloaded file could not be verified (SHA-256 mismatch). Not installed.</string>
+    <string name="update_bad_signature">This version is signed with a different key. Not installed.</string>
+    <string name="update_wrong_package">The downloaded file is not the expected app. Not installed.</string>
+    <string name="update_not_newer">The installed version is already newer</string>
+    <string name="update_done">Update complete</string>
+    <string name="update_failed">Update failed %1$s</string>
+    <string name="update_hint">Kutu Transfer updates last: this screen closes when it updates itself · BACK closes</string>
 
-    <string name="notif_channel">Dosya aktarımı</string>
-    <string name="notif_title">Dosya aktarımı açık</string>
-    <string name="notif_text">Aktarım penceresini kapatınca durur</string>
+    <string name="notif_channel">File transfer</string>
+    <string name="notif_title">File transfer is on</string>
+    <string name="notif_text">Stops when the transfer screen closes</string>
 </resources>

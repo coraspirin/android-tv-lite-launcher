@@ -48,6 +48,10 @@ build/kutu-transfer/tools/app.html
 build/kutu-transfer/tools/app.js
 build/kutu-transfer/tools/gate.html
 build/kutu-transfer/tools/gate.js
+build/kutu-transfer/tools/app-en.html
+build/kutu-transfer/tools/app-en.js
+build/kutu-transfer/tools/gate-en.html
+build/kutu-transfer/tools/gate-en.js
 build/kutu-transfer/tools/node_modules/
 
 

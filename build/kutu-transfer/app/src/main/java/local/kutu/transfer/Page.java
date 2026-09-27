@@ -1,5 +1,8 @@
 package local.kutu.transfer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * The whole browser UI, as one self-contained page.
  *
@@ -12,24 +15,80 @@ package local.kutu.transfer;
  * into a quoted JavaScript string. That is deliberate: the one real defect found in the first
  * version was exactly that - an apostrophe in a file name closing an inline onclick string -
  * and this shape cannot have it.
+ *
+ * Language follows the browser, not the TV: the phone in someone's hand may well be set to a
+ * different language from the box. Turkish when the browser's first choice is Turkish,
+ * English otherwise. The words live in {@link #TR} and {@link #EN} and are put into the
+ * template once, when the class loads; none of them may contain an apostrophe, a double quote
+ * or a backslash, since several land inside single-quoted JavaScript strings.
  */
 final class Page {
 
     private Page() {
     }
 
-    static byte[] html(boolean authed) {
-        try {
-            return (authed ? APP : GATE).getBytes("UTF-8");
-        } catch (Exception e) {
-            return new byte[0];
-        }
+    /** Turkish when the first language the browser asks for is Turkish. */
+    static boolean turkish(String acceptLanguage) {
+        if (acceptLanguage == null) return false;
+        String first = acceptLanguage.trim().toLowerCase();
+        return first.startsWith("tr");
+    }
+
+    static byte[] html(boolean authed, boolean turkish) {
+        if (turkish) return authed ? APP_TR : GATE_TR;
+        return authed ? APP_EN : GATE_EN;
+    }
+
+    private static final Map<String, String> TR = new HashMap<>();
+    private static final Map<String, String> EN = new HashMap<>();
+
+    private static void w(String key, String tr, String en) {
+        TR.put(key, tr);
+        EN.put(key, en);
+    }
+
+    static {
+        w("lang", "tr", "en");
+        w("title", "Kutu Aktarım", "Kutu Transfer");
+        w("enter_code", "Televizyondaki 6 haneli kodu gir", "Enter the 6-digit code shown on the TV");
+        w("connect", "Bağlan", "Connect");
+        w("locked", "Çok fazla deneme. Televizyondan aktarımı kapatıp yeniden aç.",
+                "Too many attempts. Close the transfer on the TV and open it again.");
+        w("bad_code", "Kod hatalı", "Wrong code");
+        w("no_conn", "Bağlantı kurulamadı", "Could not connect");
+        w("drop", "Dosyaları buraya sürükle", "Drag files here");
+        w("pick", "veya dokunup seç", "or tap to choose");
+        w("loading", "Yükleniyor…", "Loading…");
+        w("free_pre", "Kutuda ", "");
+        w("free_post", " boş yer var", " free on the box");
+        w("home", "Kutu", "Kutu");
+        w("pick_folder", "Yüklemek için bir klasör seç", "Choose a folder to upload to");
+        w("no_storage", "televizyonda depolama izni verilmediği için yalnızca Kutu klasörü görünüyor",
+                "only the Kutu folder is shown because storage access was not allowed on the TV");
+        w("read_only", "Bu klasör salt okunur", "This folder is read-only");
+        w("target", "Yükleme hedefi: ", "Uploading to: ");
+        w("bg_hint", "Buraya yüklenen JPG/PNG resimler televizyonda Kutu ayarları → Arka plan"
+                        + " bölümünden seçilir",
+                "JPG/PNG pictures uploaded here can be chosen on the TV in Kutu settings → Background");
+        w("up", "Üst klasör", "Parent folder");
+        w("denied", "Bu klasör okunamıyor", "This folder cannot be read");
+        w("delete", "Sil", "Delete");
+        w("truncated", "Çok fazla öğe var — ilk 2000 tanesi gösteriliyor",
+                "Too many items — showing the first 2000");
+        w("empty", "Bu klasör boş", "This folder is empty");
+        w("confirm_rm", "silinsin mi?", "delete?");
+        w("not_empty", "Klasör boş değil", "The folder is not empty");
+        w("no_write", "Bu klasöre yazılamıyor", "Cannot write to this folder");
+        w("pick_writable", "Önce yazılabilir bir klasör seç", "Choose a writable folder first");
+        w("no_space", "Kutuda yeterli yer yok", "Not enough space on the box");
+        w("upload_failed", "Yükleme başarısız", "Upload failed");
+        w("dropped", "Bağlantı koptu", "Connection lost");
     }
 
     private static final String HEAD =
-            "<!doctype html><html lang=\"tr\"><head><meta charset=\"utf-8\">"
+            "<!doctype html><html lang=\"{{lang}}\"><head><meta charset=\"utf-8\">"
             + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
-            + "<title>Kutu Aktarım</title><style>"
+            + "<title>{{title}}</title><style>"
             + ":root{--bg:#f4f6fa;--card:#fff;--ink:#16233a;--dim:#5b6b82;--line:#e2e8f2;"
             + "--accent:#2f7fb8;--bad:#c0392b}"
             + "@media(prefers-color-scheme:dark){:root{--bg:#0f1622;--card:#182739;--ink:#e8eef6;"
@@ -76,13 +135,13 @@ final class Page {
             + "</style></head><body><div class=\"wrap\">";
 
     private static final String GATE = HEAD
-            + "<h1>Kutu Aktarım</h1>"
-            + "<div class=\"sub\">Televizyondaki 6 haneli kodu gir</div>"
+            + "<h1>{{title}}</h1>"
+            + "<div class=\"sub\">{{enter_code}}</div>"
             + "<div class=\"card\">"
             + "<input id=\"p\" type=\"password\" inputmode=\"numeric\" maxlength=\"6\" "
             + "autocomplete=\"off\" placeholder=\"······\">"
             + "<div class=\"err\" id=\"e\"></div>"
-            + "<button onclick=\"go()\">Bağlan</button>"
+            + "<button onclick=\"go()\">{{connect}}</button>"
             + "</div><script>"
             + "var p=document.getElementById('p'),e=document.getElementById('e');p.focus();"
             + "p.addEventListener('keydown',function(k){if(k.key==='Enter')go()});"
@@ -91,23 +150,23 @@ final class Page {
             + ".then(function(r){if(r.ok){location.reload();return}"
             + "return r.json().then(function(j){"
             + "e.textContent=j.error==='locked'"
-            + "?'Çok fazla deneme. Televizyondan aktarımı kapatıp yeniden aç.'"
-            + ":'Kod hatalı';p.value='';p.focus()})})"
-            + ".catch(function(){e.textContent='Bağlantı kurulamadı'})}"
+            + "?'{{locked}}'"
+            + ":'{{bad_code}}';p.value='';p.focus()})})"
+            + ".catch(function(){e.textContent='{{no_conn}}'})}"
             + "</script></div></body></html>";
 
     private static final String APP = HEAD
-            + "<h1>Kutu Aktarım</h1>"
+            + "<h1>{{title}}</h1>"
             + "<div class=\"sub\" id=\"free\">&nbsp;</div>"
             + "<div class=\"card\">"
             + "<div id=\"where\">&nbsp;</div>"
-            + "<div id=\"drop\">Dosyaları buraya sürükle"
-            + "<br><span class=\"mt\">veya dokunup seç</span>"
+            + "<div id=\"drop\">{{drop}}"
+            + "<br><span class=\"mt\">{{pick}}</span>"
             + "<div class=\"bar\"><i id=\"pb\"></i></div></div>"
             + "<input id=\"f\" type=\"file\" multiple hidden>"
             + "<div class=\"err\" id=\"e\"></div></div>"
             + "<div class=\"card\"><div id=\"crumbs\"></div>"
-            + "<div id=\"list\">Yükleniyor…</div></div>"
+            + "<div id=\"list\">{{loading}}</div></div>"
             + "<script>"
             + "var drop=document.getElementById('drop'),fi=document.getElementById('f'),"
             + "e=document.getElementById('e'),pb=document.getElementById('pb'),"
@@ -148,10 +207,10 @@ final class Page {
             + "if(k===sig)return;sig=k;"
             + "cur=j.path;writable=!!j.writable;"
 
-            + "free.textContent='Kutuda '+hs(j.free)+' boş yer var';"
+            + "free.textContent='{{free_pre}}'+hs(j.free)+'{{free_post}}';"
 
             // trail: "Kutu / Dahili Depolama / Download", every step clickable but the last
-            + "var cb='<a href=\"#\" data-go=\"\">Kutu</a>';"
+            + "var cb='<a href=\"#\" data-go=\"\">{{home}}</a>';"
             + "for(var c=0;c<j.crumbs.length;c++){var cr=j.crumbs[c];"
             + "cb+='<span class=\"sep\">/</span>';"
             + "cb+=c===j.crumbs.length-1?'<span class=\"here\">'+esc(cr.n)+'</span>'"
@@ -159,37 +218,35 @@ final class Page {
             + "crumbs.innerHTML=cb;"
 
             + "if(j.path===''){drop.style.display='none';"
-            + "where.innerHTML=j.card?'Yüklemek için bir klasör seç'"
-            + ":'Yüklemek için bir klasör seç · <span class=\"mt\">televizyonda depolama izni "
-            + "verilmediği için yalnızca Kutu klasörü görünüyor</span>'}"
+            + "where.innerHTML=j.card?'{{pick_folder}}'"
+            + ":'{{pick_folder}} · <span class=\"mt\">{{no_storage}}</span>'}"
             + "else if(!j.writable){drop.style.display='none';"
-            + "where.innerHTML='Bu klasör salt okunur'}"
+            + "where.innerHTML='{{read_only}}'}"
             + "else{drop.style.display='';"
-            + "where.innerHTML='Yükleme hedefi: <b>'+esc(j.crumbs[j.crumbs.length-1].n)+'</b>'}"
+            + "where.innerHTML='{{target}}<b>'+esc(j.crumbs[j.crumbs.length-1].n)+'</b>'}"
             // the folder Kutu Home reads backgrounds from says so, once the human is inside it
             + "if(j.path==='kutu/Arka planlar'){where.innerHTML+=' · <span class=\"mt\">"
-            + "Buraya yüklenen JPG/PNG resimler televizyonda Kutu ayarları → Arka plan"
-            + " bölümünden seçilir</span>'}"
+            + "{{bg_hint}}</span>'}"
 
             + "var h='';"
             + "if(j.path!==''){h+='<div class=\"row dir\" data-go=\"'+attr(j.parent)+'\">'"
-            + "+'<span class=\"ic\">↩</span><div class=\"nm\">Üst klasör</div></div>'}"
+            + "+'<span class=\"ic\">↩</span><div class=\"nm\">{{up}}</div></div>'}"
             + "if(j.denied){h+='<div class=\"row\"><div class=\"nm mt\">"
-            + "Bu klasör okunamıyor</div></div>'}"
+            + "{{denied}}</div></div>'}"
             + "for(var i2=0;i2<j.entries.length;i2++){var y=j.entries[i2];var ep=attr(y.p);"
-            + "var del=writable?'<button class=\"sm\" data-rm=\"'+ep+'\">Sil</button>':'';"
+            + "var del=writable?'<button class=\"sm\" data-rm=\"'+ep+'\">{{delete}}</button>':'';"
             + "if(y.d){h+='<div class=\"row dir\" data-go=\"'+ep+'\">'"
             + "+'<span class=\"ic\">📁</span><div class=\"nm\">'+esc(y.n)+'</div>'+del+'</div>'}"
             + "else{h+='<div class=\"row\"><span class=\"ic\">📄</span>'"
             + "+'<div class=\"nm\"><a href=\"/dl?f='+ep+'\">'+esc(y.n)+'</a>'"
             + "+'<div class=\"mt\">'+hs(y.s)+'</div></div>'+del+'</div>'}}"
             + "if(j.truncated){h+='<div class=\"row\"><div class=\"nm mt\">"
-            + "Çok fazla öğe var — ilk 2000 tanesi gösteriliyor</div></div>'}"
+            + "{{truncated}}</div></div>'}"
             + "if(!j.entries.length&&!j.denied){h+='<div class=\"row\">"
-            + "<div class=\"nm mt\">Bu klasör boş</div></div>'}"
+            + "<div class=\"nm mt\">{{empty}}</div></div>'}"
             + "list.innerHTML=h}"
 
-            // data-rm is looked for first: a folder row carries data-go and contains the Sil
+            // data-rm is looked for first: a folder row carries data-go and contains the delete
             // button, so asking about navigation first would swallow every folder delete.
             + "function click(ev){var r=readTarget(ev.target,'data-rm');"
             + "if(r!==null){ev.preventDefault();rm(r);return}"
@@ -198,10 +255,10 @@ final class Page {
             + "list.addEventListener('click',click);crumbs.addEventListener('click',click);"
 
             + "function rm(p){var nm=p.substring(p.lastIndexOf('/')+1);"
-            + "if(!confirm(nm+'\\nsilinsin mi?'))return;e.textContent='';"
+            + "if(!confirm(nm+'\\n{{confirm_rm}}'))return;e.textContent='';"
             + "fetch('/rm?f='+encodeURIComponent(p),{method:'POST'}).then(function(r){"
-            + "if(r.status===409){e.textContent='Klasör boş değil'}"
-            + "else if(r.status===403){e.textContent='Bu klasöre yazılamıyor'}"
+            + "if(r.status===409){e.textContent='{{not_empty}}'}"
+            + "else if(r.status===403){e.textContent='{{no_write}}'}"
             + "else if(r.status===401){location.reload();return}"
             + "sig='';refresh()})}"
 
@@ -213,7 +270,7 @@ final class Page {
             + "send(ev.dataTransfer.files)};"
 
             + "function send(files){if(!files||!files.length)return;"
-            + "if(!writable){e.textContent='Önce yazılabilir bir klasör seç';return}"
+            + "if(!writable){e.textContent='{{pick_writable}}';return}"
             + "e.textContent='';"
             + "var fd=new FormData();for(var i=0;i<files.length;i++)fd.append('f',files[i]);"
             + "var x=new XMLHttpRequest();"
@@ -221,15 +278,41 @@ final class Page {
             + "x.upload.onprogress=function(ev){if(ev.lengthComputable)"
             + "pb.style.width=(ev.loaded/ev.total*100)+'%'};"
             + "x.onload=function(){pb.style.width='0';fi.value='';"
-            + "if(x.status===507){e.textContent='Kutuda yeterli yer yok'}"
-            + "else if(x.status===403){e.textContent='Bu klasöre yazılamıyor'}"
+            + "if(x.status===507){e.textContent='{{no_space}}'}"
+            + "else if(x.status===403){e.textContent='{{no_write}}'}"
             + "else if(x.status===401){location.reload()}"
-            + "else if(x.status!==200){e.textContent='Yükleme başarısız'}"
+            + "else if(x.status!==200){e.textContent='{{upload_failed}}'}"
             + "sig='';refresh()};"
-            + "x.onerror=function(){pb.style.width='0';e.textContent='Bağlantı koptu'};"
+            + "x.onerror=function(){pb.style.width='0';e.textContent='{{dropped}}'};"
             + "x.send(fd)}"
 
             + "try{cur=decodeURIComponent((location.hash||'').substring(1))}catch(x){cur=''}"
             + "refresh();setInterval(refresh,5000);"
             + "</script></div></body></html>";
+
+    private static final byte[] GATE_TR = fill(GATE, TR);
+    private static final byte[] GATE_EN = fill(GATE, EN);
+    private static final byte[] APP_TR = fill(APP, TR);
+    private static final byte[] APP_EN = fill(APP, EN);
+
+    private static byte[] fill(String template, Map<String, String> words) {
+        StringBuilder sb = new StringBuilder(template.length() + 512);
+        int at = 0;
+        while (true) {
+            int open = template.indexOf("{{", at);
+            if (open < 0) break;
+            int close = template.indexOf("}}", open);
+            String key = template.substring(open + 2, close);
+            String word = words.get(key);
+            if (word == null) throw new IllegalStateException("page text missing: " + key);
+            sb.append(template, at, open).append(word);
+            at = close + 2;
+        }
+        sb.append(template, at, template.length());
+        try {
+            return sb.toString().getBytes("UTF-8");
+        } catch (Exception e) {
+            return new byte[0];
+        }
+    }
 }

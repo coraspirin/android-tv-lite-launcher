@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Turkish. values/ holds the English default; keep the two key sets identical. -->
+<resources>
+    <string name="app_name">Kutu Yansıtma</string>
+
+    <!-- Notification -->
+    <string name="notification_channel">Kutu Yansıtma</string>
+    <string name="notification_title">Kutu Yansıtma</string>
+    <string name="notification_text">AirPlay ekran yansıtmaya hazır</string>
+    <string name="notification_pin_title">AirPlay PIN kodu</string>
+    <string name="notification_pin_text">PIN: %1$s</string>
+</resources>

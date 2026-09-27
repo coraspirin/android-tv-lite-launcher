@@ -418,6 +418,14 @@ The WSL build's `local.properties` still pointed at the old project path
 (`tv-debloat/keys/kutu-mirror.jks`) and would have failed to sign; it now points at this
 repository's `keys/`.
 
+### 1.1 - Turkish strings - 2026-09-27
+
+versionCode 2. The notification and app name gain a Turkish translation in `values-tr/`
+("Kutu Yansıtma", "AirPlay ekran yansıtmaya hazır"); English stays the default in `values/`, and
+`resourceConfigurations` keeps just those two. No code change. Built in WSL after the
+`local.properties` key path fix; signing certificate unchanged
+(`7cbb1d95...63e8ba`).
+
 ### Not yet run
 
 - **Mac**: native macOS Screen Mirroring, picture + sound, disconnect, cleanup. No Mac

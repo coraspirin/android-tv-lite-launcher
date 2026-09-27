@@ -131,7 +131,7 @@ Section 1A is for building the apps for a new owner. Once an owner has their own
 irm https://github.com/<owner>/<repo>/releases/latest/download/install.ps1 | iex
 ```
 
-`install.ps1` (repo root) asks only for the TV's IP and then, in order: downloads Google's `platform-tools` if no `adb` is found; connects and waits for the on-TV authorisation; refuses boxes below API 28 or without `armeabi-v7a`; reads the latest Release's `kutu-versions.json` and downloads the three APKs, **stopping if any SHA-256 differs**; installs Mirror, then Transfer, then Home (only when missing or older, never uninstalls); grants Home `ACCESS_COARSE_LOCATION` and Transfer the storage permissions and the `REQUEST_INSTALL_PACKAGES` app-op; on a Mi Box S (`MIBOX4`) only, disables the section 5 list minus the voice stack and the stock launcher; makes Kutu Home HOME (disabling the stock launcher only if `set-home-activity` alone does not win), reboots and re-checks; writes every change and its undo to `Documents/Kutu/<model>-<date>-geri-al.txt`; and finally turns ADB off (section 37). It is idempotent; `-DryRun` changes nothing.
+`install.ps1` (repo root) asks only for the TV's IP and then, in order: downloads Google's `platform-tools` if no `adb` is found; connects and waits for the on-TV authorisation; refuses boxes below API 28 or without `armeabi-v7a`; reads the latest Release's `kutu-versions.json` and downloads the three APKs, **stopping if any SHA-256 differs**; installs Mirror, then Transfer, then Home (only when missing or older, never uninstalls); grants Home `ACCESS_COARSE_LOCATION` and Transfer the storage permissions and the `REQUEST_INSTALL_PACKAGES` app-op; on a Mi Box S (`MIBOX4`) only, disables the section 5 list minus the voice stack and the stock launcher; makes Kutu Home HOME (disabling the stock launcher only if `set-home-activity` alone does not win), reboots and re-checks; writes every change and its undo to `Documents/Kutu/<model>-<date>-geri-al.txt`; and finally turns ADB off (section 37). It is idempotent; `-DryRun` changes nothing. Its messages and the undo file are Turkish on a Turkish Windows and English otherwise (`-Lang tr|en` forces one).
 
 The script body is ASCII on purpose: user-facing Turkish is stored as `\uXXXX` escapes and decoded at run time, so it survives whatever encoding `irm` guesses. Do not use `exit` in it (under `iex` that closes the user's window) and do not assign `$Home` (a read-only automatic variable).
 
@@ -791,6 +791,8 @@ Architecture:
 - essentially zero idle CPU (reference: 0.0 % over 60 s)
 - release: `minifyEnabled`, `shrinkResources`, `allowBackup=false`, `debuggable=false`
 
+Language: `res/values/` is **English** (Android's fallback for every language without its own folder) and `res/values-tr/` is Turkish, with identical key sets; `resourceConfigurations ['tr','en']`. No text lives in code or layouts. Dates, sorting and capitalisation take the locale from the resources' configuration, never a hard-coded `tr_TR`: the date pattern itself is a string (`d MMMM EEEE` / `EEEE, d MMMM`). The same layout applies to Kutu Transfer and Kutu Mirror.
+
 Permissions, all install-time except one, and still **no network permission**:
 - `REQUEST_DELETE_PACKAGES`: Android's uninstall-confirmation UI
 - `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`: the Wi-Fi line under the clock
@@ -1309,6 +1311,7 @@ Parse `multipart/form-data` **streaming straight to disk** in a 64 KB window, ho
 Pitfall: `PushbackInputStream.read(b,off,len)` drains pushback then **calls through to the socket** for the rest; when a small body is fully in pushback it blocks forever. Never request more than `available()` while anything is buffered. Small files are the demanding test, not large ones.
 
 ## Browser page (`Page`)
+- its language follows the browser, not the TV: Turkish when the first `Accept-Language` entry is `tr`, English otherwise. Words live in one table (`w(key, tr, en)`) and are filled into the template once at class load; none may contain `'`, `"` or `\`, since several land in single-quoted JavaScript. Root names ("Kutu Klasörü" / "Kutu folder") follow the same request language
 - a folder browser: roots → folders → files, crumb trail, "Üst klasör" row, upload (drag-drop, file picker, progress), download, delete, free-space line
 - **no path is ever pasted into a quoted JS string or inline `onclick`.** Every clickable carries its target in `data-go` / `data-rm`; one delegated listener reads it with `decodeURIComponent`. Check `data-rm` **before** `data-go` (a folder row contains its delete button).
 - escape every file name before `innerHTML`

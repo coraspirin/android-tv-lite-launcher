@@ -32,8 +32,10 @@ android {
         applicationId = "local.kutu.mirror"
         minSdk = 28
         targetSdk = 28
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
+        // only English (values/) and Turkish (values-tr/) ship
+        resourceConfigurations += listOf("en", "tr")
 
         externalNativeBuild {
             cmake {

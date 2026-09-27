@@ -579,3 +579,17 @@ Permissions now: `REQUEST_DELETE_PACKAGES`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI
 | Dark theme | settings card, home, long-press menu and move mode all checked |
 
 1.2.2, installed on the box through the updater and checked by screenshot the same day: at N=9 the seven apps keep full size; at N=5 the shelf rests on whole tiles scrolling both ways, with the focused ring intact at the end; the lifted card in move mode is no longer cut; BACK still restores the order.
+
+## 1.3 - English - 2026-09-27
+
+versionCode 7. The whole app now follows the system language: Turkish on a Turkish TV,
+English on any other.
+
+- `res/values/strings.xml` is English (Android's fallback) and the Turkish moved unchanged to
+  `res/values-tr/`. 59 keys in each, checked equal.
+- The date under the clock comes from a string pattern (`d MMMM EEEE` gives "27 Eylül Pazar",
+  `EEEE, d MMMM` gives "Sunday, 27 September") with the configuration's locale; the first-letter
+  capitalisation and the All Apps sort use the same locale instead of a fixed `tr_TR`.
+- The version row in settings reads its app names from strings (Yansıtma/Aktarım, Mirror/Transfer).
+- The "Arka planlar" folder keeps its name in both languages: it is a path shared with Kutu
+  Transfer and the photos already live there.

@@ -200,9 +200,9 @@ public final class SettingsActivity extends Activity {
     private String versions() {
         StringBuilder sb = new StringBuilder();
         String[][] apps = {
-                {getPackageName(), "Home"},
-                {AppRepository.MIRROR_PKG, "Yansıtma"},
-                {AppRepository.TRANSFER_PKG, "Aktarım"},
+                {getPackageName(), getString(R.string.ver_home)},
+                {AppRepository.MIRROR_PKG, getString(R.string.ver_mirror)},
+                {AppRepository.TRANSFER_PKG, getString(R.string.ver_transfer)},
         };
         for (String[] app : apps) {
             try {

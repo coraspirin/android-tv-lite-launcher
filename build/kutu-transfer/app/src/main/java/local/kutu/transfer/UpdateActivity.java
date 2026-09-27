@@ -61,11 +61,15 @@ public final class UpdateActivity extends Activity {
     private static final long MAX_APK_BYTES = 64L * 1024L * 1024L;
 
     /** mirror first and this app last: updating itself ends this screen */
-    private static final String[][] APPS = {
-            {"local.kutu.mirror", "Kutu Yansıtma"},
-            {"local.kutu.home", "Kutu Home"},
-            {"local.kutu.transfer", "Kutu Aktarım"},
-    };
+    private static final String[] APP_PKGS = {"local.kutu.mirror", "local.kutu.home", "local.kutu.transfer"};
+    private static final int[] APP_NAMES = {R.string.name_mirror, R.string.name_home, R.string.name_transfer};
+
+    /** package and display name, in the system language */
+    private String[][] apps() {
+        String[][] out = new String[APP_PKGS.length][];
+        for (int i = 0; i < APP_PKGS.length; i++) out[i] = new String[]{APP_PKGS[i], getString(APP_NAMES[i])};
+        return out;
+    }
 
     /** the screen currently showing, so the install-status receiver can report back */
     private static UpdateActivity visible;
@@ -121,7 +125,7 @@ public final class UpdateActivity extends Activity {
                     JSONObject apps = new JSONObject(new String(get(versionsUrl, null), "UTF-8"))
                             .getJSONObject("apps");
                     available.clear();
-                    for (String[] app : APPS) {
+                    for (String[] app : apps()) {
                         JSONObject o = apps.optJSONObject(app[0]);
                         if (o == null) continue;
                         String url = assets.get(o.getString("asset"));
@@ -153,7 +157,7 @@ public final class UpdateActivity extends Activity {
     private void render() {
         list.removeAllViews();
         View firstAction = null;
-        for (final String[] app : APPS) {
+        for (final String[] app : apps()) {
             long installedCode = -1;
             String installedName = null;
             try {

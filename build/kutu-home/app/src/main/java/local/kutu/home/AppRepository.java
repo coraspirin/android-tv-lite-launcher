@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -42,7 +41,7 @@ final class AppRepository {
         collect(ctx, pm, new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), byPkg);
 
         List<AppEntry> out = new ArrayList<>(byPkg.values());
-        final Collator collator = Collator.getInstance(new Locale("tr", "TR"));
+        final Collator collator = Collator.getInstance(ctx.getResources().getConfiguration().getLocales().get(0));
         collator.setStrength(Collator.PRIMARY);
         Collections.sort(out, new Comparator<AppEntry>() {
             @Override

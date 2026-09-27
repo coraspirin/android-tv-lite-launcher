@@ -51,15 +51,22 @@ final class Shared {
     /** One browsable top-level place. */
     static final class Root {
         final String id;
-        final String label;
+        /** shown in the browser, whose language may differ from the TV's */
+        private final String labelTr;
+        private final String labelEn;
         final File dir;
         final boolean writable;
 
-        Root(String id, String label, File dir, boolean writable) {
+        Root(String id, String labelTr, String labelEn, File dir, boolean writable) {
             this.id = id;
-            this.label = label;
+            this.labelTr = labelTr;
+            this.labelEn = labelEn;
             this.dir = dir;
             this.writable = writable;
+        }
+
+        String label(boolean turkish) {
+            return turkish ? labelTr : labelEn;
         }
     }
 
@@ -116,13 +123,13 @@ final class Shared {
 
     static List<Root> roots(Context ctx) {
         List<Root> out = new ArrayList<>();
-        out.add(new Root(ROOT_APP, "Kutu Klasörü", dir(ctx), true));
+        out.add(new Root(ROOT_APP, "Kutu Klasörü", "Kutu folder", dir(ctx), true));
 
         if (canBrowseCard(ctx)
                 && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             File sd = Environment.getExternalStorageDirectory();
             if (sd != null && sd.isDirectory()) {
-                out.add(new Root(ROOT_SD, "Dahili Depolama", sd, canWriteCard(ctx)));
+                out.add(new Root(ROOT_SD, "Dahili Depolama", "Internal storage", sd, canWriteCard(ctx)));
             }
         }
         return out;

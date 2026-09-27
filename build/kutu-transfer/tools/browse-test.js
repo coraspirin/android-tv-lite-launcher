@@ -4,7 +4,11 @@
 const fs = require('fs');
 const { JSDOM } = require('jsdom');
 
-const html = fs.readFileSync('app.html', 'utf8');
+// LANG_PAGE=en runs the English page; the fake box and every check stay the same
+const EN = process.env.LANG_PAGE === 'en';
+const html = fs.readFileSync(EN ? 'app-en.html' : 'app.html', 'utf8');
+const PICK = EN ? /Choose a folder/ : /klasör seç/;
+const EMPTY = EN ? /This folder is empty/ : /Bu klasör boş/;
 
 // ---------------------------------------------------------------- the fake box
 const FOLDERS = {
@@ -84,7 +88,7 @@ function click(el) { el.dispatchEvent(new w.MouseEvent('click', { bubbles: true 
   check('two roots listed', rows().length === 2, rows().map(r => r.textContent).join(' | '));
   check('upload hidden at root', doc.getElementById('drop').style.display === 'none');
   check('where says pick a folder',
-    /klasör seç/.test(doc.getElementById('where').textContent));
+    PICK.test(doc.getElementById('where').textContent));
   check('free line rendered', /2\.7 GB/.test(doc.getElementById('free').textContent),
     doc.getElementById('free').textContent);
 
@@ -131,7 +135,7 @@ function click(el) { el.dispatchEvent(new w.MouseEvent('click', { bubbles: true 
   click(rows().find(r => r.textContent.includes('Download')));
   await wait();
   check('navigated into Download', seen.includes('GET /api/list?p=sd%2FDownload'));
-  check('empty folder says so', /Bu klasör boş/.test(doc.getElementById('list').textContent));
+  check('empty folder says so', EMPTY.test(doc.getElementById('list').textContent));
   check('hash tracks the folder', decodeURIComponent(w.location.hash.slice(1)) === 'sd/Download',
     w.location.hash);
 

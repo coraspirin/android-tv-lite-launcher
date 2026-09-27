@@ -144,7 +144,7 @@ final class TransferServer {
         boolean authed = isAuthed(req);
 
         if ("/".equals(req.path) || "/index.html".equals(req.path)) {
-            servePage(out, authed);
+            servePage(out, authed, Page.turkish(req.header("accept-language")));
             return;
         }
         if ("/auth".equals(req.path)) {
@@ -232,8 +232,8 @@ final class TransferServer {
 
     // ------------------------------------------------------------------ routes
 
-    private void servePage(OutputStream out, boolean authed) throws IOException {
-        byte[] page = Page.html(authed);
+    private void servePage(OutputStream out, boolean authed, boolean turkish) throws IOException {
+        byte[] page = Page.html(authed, turkish);
         Http.send(out, 200, "text/html; charset=utf-8", page, "Cache-Control: no-store");
     }
 
@@ -249,6 +249,7 @@ final class TransferServer {
     private void handleList(Http req, OutputStream out) throws IOException {
         String p = req.query.get("p");
         if (p == null) p = "";
+        boolean turkish = Page.turkish(req.header("accept-language"));
 
         if (p.isEmpty()) {
             List<Shared.Root> roots = Shared.roots(ctx);
@@ -261,7 +262,7 @@ final class TransferServer {
             for (int i = 0; i < roots.size(); i++) {
                 Shared.Root r = roots.get(i);
                 if (i > 0) sb.append(',');
-                sb.append("{\"n\":\"").append(Http.jsonEscape(r.label))
+                sb.append("{\"n\":\"").append(Http.jsonEscape(r.label(turkish)))
                         .append("\",\"p\":\"").append(Http.jsonEscape(r.id))
                         .append("\",\"d\":true,\"s\":0,\"t\":0}");
             }
@@ -298,7 +299,7 @@ final class TransferServer {
                 .append(",\"truncated\":").append(truncated)
                 .append(",\"free\":").append(Shared.freeBytes(node.file))
                 .append(",\"crumbs\":[");
-        appendCrumbs(sb, node);
+        appendCrumbs(sb, node, turkish);
         sb.append("],\"entries\":[");
         for (int i = 0; i < entries.size(); i++) {
             File f = entries.get(i);
@@ -314,7 +315,7 @@ final class TransferServer {
     }
 
     /** Root label first, then one crumb per segment, each with the path it navigates to. */
-    private void appendCrumbs(StringBuilder sb, Shared.Node node) {
+    private void appendCrumbs(StringBuilder sb, Shared.Node node, boolean turkish) {
         String[] parts = node.vpath.split("/");
         StringBuilder walk = new StringBuilder();
         for (int i = 0; i < parts.length; i++) {
@@ -323,7 +324,7 @@ final class TransferServer {
                 walk.append('/');
             }
             walk.append(parts[i]);
-            String label = i == 0 ? node.root.label : parts[i];
+            String label = i == 0 ? node.root.label(turkish) : parts[i];
             sb.append("{\"p\":\"").append(Http.jsonEscape(walk.toString()))
                     .append("\",\"n\":\"").append(Http.jsonEscape(label)).append("\"}");
         }

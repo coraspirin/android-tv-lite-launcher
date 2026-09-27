@@ -2,7 +2,9 @@
 
 Lets the browser page be syntax-checked and executed before the APK is ever installed:
 
-    python extract.py && node --check app.js && node browse-test.js
+    python extract.py && node --check app.js && node --check app-en.js && node browse-test.js
+
+It writes the Turkish page as gate/app.* and the English one as gate-en/app-en.*.
 
 browse-test.js needs jsdom (npm install jsdom), which is a test-only dependency and is
 deliberately not part of the app - the app itself still has none.
@@ -48,16 +50,35 @@ def constant(name):
     return ''.join(unescape(m.group(1)) for m in LIT.finditer(body))
 
 
-head = constant('HEAD')
-for name in ('GATE', 'APP'):
-    page = constant(name).replace('HEAD_PLACEHOLDER', '')
-    # HEAD is referenced by name, not inlined, so prepend it
-    page = head + page
-    path = os.path.join(OUT, name.lower() + '.html')
-    io.open(path, 'w', encoding='utf-8').write(page)
+# the words, from the w("key", "tr", "en") table; a value may be split over two literals
+WORDS = {'tr': {}, 'en': {}}
+for m in re.finditer(r'w\("(\w+)",(.*?)\);\n', text, re.S):
+    body = m.group(2)
+    # split on the top-level comma that separates tr from en: the last '",'
+    cut = body.rindex('",') + 1
+    WORDS['tr'][m.group(1)] = ''.join(unescape(x.group(1)) for x in LIT.finditer(body[:cut]))
+    WORDS['en'][m.group(1)] = ''.join(unescape(x.group(1)) for x in LIT.finditer(body[cut:]))
 
-    scripts = re.findall(r'<script>(.*?)</script>', page, re.S)
-    js = '\n'.join(scripts)
-    jspath = os.path.join(OUT, name.lower() + '.js')
-    io.open(jspath, 'w', encoding='utf-8').write(js)
-    print('%-5s html=%5d bytes  js=%5d bytes  -> %s' % (name, len(page), len(js), jspath))
+
+def fill(page, words):
+    def sub(m):
+        if m.group(1) not in words:
+            sys.exit('page text missing: ' + m.group(1))
+        return words[m.group(1)]
+    return re.sub(r'\{\{(\w+)\}\}', sub, page)
+
+
+head = constant('HEAD')
+for lang in ('tr', 'en'):
+    suffix = '' if lang == 'tr' else '-en'
+    for name in ('GATE', 'APP'):
+        # HEAD is referenced by name, not inlined, so prepend it
+        page = fill(head + constant(name), WORDS[lang])
+        path = os.path.join(OUT, name.lower() + suffix + '.html')
+        io.open(path, 'w', encoding='utf-8').write(page)
+
+        scripts = re.findall(r'<script>(.*?)</script>', page, re.S)
+        js = '\n'.join(scripts)
+        jspath = os.path.join(OUT, name.lower() + suffix + '.js')
+        io.open(jspath, 'w', encoding='utf-8').write(js)
+        print('%-5s %s html=%5d bytes  js=%5d bytes  -> %s' % (name, lang, len(page), len(js), jspath))

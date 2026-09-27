@@ -1,69 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    English, the default. Android falls back to these for any system language that has
+    no folder of its own; values-tr holds the Turkish. Keep the two key sets identical.
+-->
 <resources>
     <string name="app_name">Kutu Home</string>
 
-    <string name="chip_mirror">Ekran Yansıtma</string>
-    <string name="chip_settings">Ayarlar</string>
-    <string name="chip_all_apps">Tüm Uygulamalar</string>
-    <string name="chip_transfer">Dosya Aktarımı</string>
-    <string name="transfer_missing">Aktarım uygulaması kurulu değil</string>
+    <string name="chip_mirror">Screen Mirroring</string>
+    <string name="chip_settings">Settings</string>
+    <string name="chip_all_apps">All Apps</string>
+    <string name="chip_transfer">File Transfer</string>
+    <string name="transfer_missing">The transfer app is not installed</string>
 
-    <string name="menu_move">Taşı</string>
-    <string name="menu_remove">Ana ekrandan kaldır</string>
-    <string name="menu_add">Ana ekrana ekle</string>
-    <string name="menu_app_info">Uygulama bilgisi</string>
-    <string name="menu_uninstall">Uygulamayı kaldır</string>
+    <string name="menu_move">Move</string>
+    <string name="menu_remove">Remove from home</string>
+    <string name="menu_add">Add to home</string>
+    <string name="menu_app_info">App info</string>
+    <string name="menu_uninstall">Uninstall</string>
 
-    <string name="move_hint">◀ ▶ taşı · OK onayla · GERİ iptal</string>
-    <string name="all_apps_title">Tüm Uygulamalar</string>
-    <string name="empty_dock">Ana ekrana uygulama ekle</string>
-    <string name="app_unavailable">Uygulama yüklü değil</string>
+    <string name="move_hint">◀ ▶ move · OK confirm · BACK cancel</string>
+    <string name="all_apps_title">All Apps</string>
+    <string name="empty_dock">Add apps to the home screen</string>
+    <string name="app_unavailable">App not installed</string>
 
-    <string name="mirror_title">Ekran Yansıtma</string>
-    <string name="mirror_state_ready">Alıcı hazır</string>
-    <string name="mirror_state_stopped">Alıcı kurulu ama çalışmıyor</string>
-    <string name="mirror_state_unknown">Alıcı kurulu, durum okunamadı</string>
-    <string name="mirror_state_missing">Alıcı kurulu değil</string>
-    <string name="mirror_toggle">Alıcı</string>
-    <string name="mirror_toggle_failed">Alıcı değiştirilemedi</string>
-    <string name="settings_unavailable">Ayarlar açılamadı</string>
-    <string name="tile_add">Uygulama ekle</string>
-    <string name="on_home_suffix">ana ekranda</string>
+    <string name="mirror_title">Screen Mirroring</string>
+    <string name="mirror_state_ready">Receiver ready</string>
+    <string name="mirror_state_stopped">Receiver installed but not running</string>
+    <string name="mirror_state_unknown">Receiver installed, state unknown</string>
+    <string name="mirror_state_missing">Receiver not installed</string>
+    <string name="mirror_toggle">Receiver</string>
+    <string name="mirror_toggle_failed">Could not switch the receiver</string>
+    <string name="settings_unavailable">Could not open Settings</string>
+    <string name="tile_add">Add app</string>
+    <string name="on_home_suffix">on home</string>
 
 
     <!-- status line under the clock -->
-    <string name="net_none">Bağlı değil</string>
-    <string name="net_wifi">Wi-Fi bağlı</string>
-    <string name="net_ethernet">Kablolu bağlantı</string>
-    <string name="net_other">Bağlı</string>
-    <string name="battery_pct">%%%1$d</string>
+    <string name="net_none">Not connected</string>
+    <string name="net_wifi">Wi-Fi connected</string>
+    <string name="net_ethernet">Wired connection</string>
+    <string name="net_other">Connected</string>
+    <string name="battery_pct">%1$d%%</string>
+    <!-- date under the clock, SimpleDateFormat pattern: Sunday, 27 September -->
+    <string name="date_pattern">EEEE, d MMMM</string>
 
     <!-- Kutu Home settings -->
-    <string name="kutu_settings">Kutu ayarları</string>
-    <string name="settings_title">Kutu Home ayarları</string>
-    <string name="set_theme">Tema</string>
-    <string name="set_theme_light">Açık</string>
-    <string name="set_theme_dark">Koyu</string>
-    <string name="set_theme_auto">Otomatik</string>
-    <string name="set_dark_from">Koyu tema başlangıcı</string>
-    <string name="set_light_from">Açık tema başlangıcı</string>
-    <string name="set_background">Arka plan</string>
-    <string name="set_background_default">Varsayılan</string>
-    <string name="set_background_custom">Özel resim</string>
-    <string name="set_visible">Ana ekranda görünen uygulama</string>
-    <string name="set_wifi_name">Wi-Fi adı</string>
-    <string name="set_wifi_name_on">Gösteriliyor</string>
-    <string name="set_wifi_name_off">İzin ver</string>
-    <string name="set_update">Güncellemeleri denetle</string>
-    <string name="set_version">Sürüm</string>
-    <string name="set_hint_adjust">◀ ▶ değiştir · GERİ kapat</string>
-    <string name="update_missing">Güncelleme için Kutu Aktarım gerekli</string>
+    <string name="kutu_settings">Kutu settings</string>
+    <string name="settings_title">Kutu Home settings</string>
+    <string name="set_theme">Theme</string>
+    <string name="set_theme_light">Light</string>
+    <string name="set_theme_dark">Dark</string>
+    <string name="set_theme_auto">Automatic</string>
+    <string name="set_dark_from">Dark theme from</string>
+    <string name="set_light_from">Light theme from</string>
+    <string name="set_background">Background</string>
+    <string name="set_background_default">Default</string>
+    <string name="set_background_custom">Custom image</string>
+    <string name="set_visible">Apps shown on home</string>
+    <string name="set_wifi_name">Wi-Fi name</string>
+    <string name="set_wifi_name_on">Shown</string>
+    <string name="set_wifi_name_off">Allow</string>
+    <string name="set_update">Check for updates</string>
+    <string name="set_version">Version</string>
+    <string name="ver_home">Home</string>
+    <string name="ver_mirror">Mirror</string>
+    <string name="ver_transfer">Transfer</string>
+    <string name="set_hint_adjust">◀ ▶ change · BACK close</string>
+    <string name="update_missing">Updates need Kutu Transfer</string>
 
     <!-- background picker -->
-    <string name="bg_title">Arka plan</string>
-    <string name="bg_default">Varsayılan</string>
-    <string name="bg_transfer_missing">Kutu Aktarım kurulu değil. Telefondan resim göndermek için gerekli.</string>
-    <string name="bg_empty">Telefondan resim eklemek için: Dosya Aktarımı → tarayıcıda "Arka planlar" klasörüne JPG/PNG yükleyin.</string>
-    <string name="bg_applying">Arka plan hazırlanıyor…</string>
-    <string name="bg_failed">Resim açılamadı</string>
+    <string name="bg_title">Background</string>
+    <string name="bg_default">Default</string>
+    <string name="bg_transfer_missing">Kutu Transfer is not installed. It is needed to send pictures from a phone.</string>
+    <string name="bg_empty">To add pictures from a phone: File Transfer → upload JPG/PNG files to the "Arka planlar" folder in the browser.</string>
+    <string name="bg_applying">Preparing the background…</string>
+    <string name="bg_failed">Could not open the picture</string>
 </resources>
