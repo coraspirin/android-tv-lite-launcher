@@ -6,8 +6,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.KeyEvent;
@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,14 +32,14 @@ import java.util.Locale;
 /**
  * Kutu Home.
  *
- * Guide 15: plain platform Views, no AndroidX, no Compose, no GMS, no network
+ * Guide 15: plain platform Views, no AndroidX, no Compose, no GMS, no INTERNET
  * permission, no background service, no wakelock, no boot receiver, no database.
- * The clock is driven by ACTION_TIME_TICK rather than a polling loop, so the
- * launcher does no work at all while it sits idle.
+ * The clock is driven by ACTION_TIME_TICK and the Wi-Fi line by a default-network
+ * callback rather than a polling loop, so the launcher does no work at all while it
+ * sits idle.
  */
 public final class HomeActivity extends Activity {
 
-    private static final int MAX_UNSCROLLED_TILES = 7;   // guide 19
     private static final String ADD_TILE_TAG = "__add__";
 
     /**
@@ -49,21 +50,29 @@ public final class HomeActivity extends Activity {
     private static final float CHIP_FOCUS_SCALE = 1.06f;
     private static final float CHIP_FOCUS_LIFT_DP = 4f;
 
+    /** the entry animation: short, and only a small slide so a weak GPU is not taxed */
+    private static final long ENTRY_ANIM_MS = 160L;
+    private static final float ENTRY_SLIDE_DP = 12f;
+
     private ViewGroup dockRow;
     private HorizontalScrollView shelf;
     private LinearLayout chipsRow;
+    private LinearLayout pageDots;
     private TextView focusedLabel;
     private TextView moveHint;
     private TextView clockTime;
     private TextView clockDate;
-    private View themeToggle;
+    private View settingsButton;
+    private ImageView background;
+    private ImageView netIcon;
+    private TextView netLabel;
+    private ImageView batteryIcon;
+    private TextView batteryLabel;
 
-    /**
-     * Survives the recreate() a theme change triggers, so focus returns to the button
-     * instead of dropping onto the first tile. Instance fields do not survive it, and
-     * onResume's rebuild would overwrite a plain requestFocus() posted from onCreate.
-     */
-    private static boolean focusToggleAfterThemeChange;
+    private NetworkStatus networkStatus;
+
+    /** the theme this activity was created with; a different isDark() means recreate */
+    private boolean shownDark;
 
     private final List<String[]> dock = new ArrayList<>();
     private List<String[]> dockBeforeMove;
@@ -71,13 +80,31 @@ public final class HomeActivity extends Activity {
     /** Key whose ACTION_UP must be discarded because its ACTION_DOWN ended move mode. */
     private int swallowUpKeyCode = -1;
 
+    /** how many tiles the shelf shows before it scrolls, and the tile scale that fits them */
+    private int visibleTiles = HomeSettings.VISIBLE_DEFAULT;
+    private float tileScale = 1f;
+
     /**
      * What had focus when the launcher was last left. onResume rebuilds the dock, and
      * without this every return from a panel or an app dropped focus onto the first
-     * tile instead of the chip or tile the person came from.
+     * tile instead of the chip, tile or top button the person came from.
      */
     private String lastFocusedPkg;
     private int lastFocusedChip = -1;
+    private int lastFocusedTop;
+
+    /**
+     * Set when Kutu Home opens one of its own screens (All Apps, the panels, settings).
+     * Coming back from those is not "arriving home", so it does not replay the entry
+     * animation; coming back from an app, or pressing HOME, does.
+     */
+    private boolean openingOwnScreen;
+    private boolean pendingEntryAnimation;
+
+    /** modification stamp of the background file currently shown */
+    private long backgroundStamp = Long.MIN_VALUE;
+
+    private static final int REQ_LOCATION = 41;
 
     /** renderDock sentinel: lay the shelf out but leave focus alone, the caller places it */
     private static final String KEEP_FOCUS = "\u0000keep-focus";
@@ -90,6 +117,8 @@ public final class HomeActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateClock();
+            // automatic theme: the same minute tick that moves the clock flips the theme
+            if (ThemeStore.isDark(HomeActivity.this) != shownDark) recreate();
         }
     };
 
@@ -99,6 +128,8 @@ public final class HomeActivity extends Activity {
             IconNormalizer.clearCache();
             // the card colours are derived from those icons, so they go stale with them
             TileGlass.clearCache();
+            // an uninstalled favourite leaves the shelf; rebuildDock prunes it. An update
+            // arrives as REMOVED with EXTRA_REPLACING and must not touch the shelf.
             rebuildDock();
         }
     };
@@ -114,15 +145,22 @@ public final class HomeActivity extends Activity {
     protected void onCreate(Bundle saved) {
         super.onCreate(saved);
         setContentView(R.layout.activity_home);
+        shownDark = ThemeStore.isDark(this);
 
         dockRow = findViewById(R.id.dock_row);
         shelf = findViewById(R.id.shelf);
         chipsRow = findViewById(R.id.chips_row);
+        pageDots = findViewById(R.id.page_dots);
         focusedLabel = findViewById(R.id.focused_label);
         moveHint = findViewById(R.id.move_hint);
         clockTime = findViewById(R.id.clock_time);
         clockDate = findViewById(R.id.clock_date);
-        themeToggle = findViewById(R.id.theme_toggle);
+        settingsButton = findViewById(R.id.settings_button);
+        background = findViewById(R.id.background);
+        netIcon = findViewById(R.id.net_icon);
+        netLabel = findViewById(R.id.net_label);
+        batteryIcon = findViewById(R.id.battery_icon);
+        batteryLabel = findViewById(R.id.battery_label);
 
         Locale tr = new Locale("tr", "TR");
         timeFormat = new SimpleDateFormat("HH:mm", tr);
@@ -131,31 +169,49 @@ public final class HomeActivity extends Activity {
         // guide 19: never draw an icon outside the rounded shelf
         shelf.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
         shelf.setClipToOutline(true);
+        shelf.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int x, int y, int oldX, int oldY) {
+                if (x != oldX) updateActiveDot();
+            }
+        });
+
+        networkStatus = new NetworkStatus(this, new NetworkStatus.Listener() {
+            @Override
+            public void onNetworkStatus(int kind, String name) {
+                showNetwork(kind, name);
+            }
+        });
 
         buildChips();
-        buildThemeToggle();
+        buildTopButtons();
         updateClock();
     }
 
+    // ------------------------------------------------------- top-left button
+
     /**
-     * The icon itself is picked by the -night qualifier, not here: drawable/ic_theme is a
-     * moon and drawable-night/ic_theme is a sun, so the button always shows what pressing
-     * it would give you, without any code choosing between them.
+     * The gear opens Kutu Home's own settings, where the theme is chosen too. The home
+     * screen itself carries no theme button any more.
      */
-    private void buildThemeToggle() {
-        attachGlassFocus(themeToggle, CHIP_FOCUS_SCALE, null);
-        themeToggle.setOnClickListener(new View.OnClickListener() {
+    private void buildTopButtons() {
+        attachGlassFocus(settingsButton, CHIP_FOCUS_SCALE, new Runnable() {
+            @Override
+            public void run() {
+                rememberTop(R.id.settings_button);
+                focusedLabel.setText(R.string.kutu_settings);
+            }
+        });
+        settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ThemeStore.setDark(HomeActivity.this, !ThemeStore.isDark(HomeActivity.this));
-                focusToggleAfterThemeChange = true;
-                recreate();
+                openOwn(new Intent(HomeActivity.this, SettingsActivity.class));
             }
         });
     }
 
     /**
-     * The focus feel shared by the chips and the theme button. Both are glass outside the
+     * The focus feel shared by the chips and the settings button. Both are glass outside the
      * shelf, where the state selector alone leaves them looking dead next to a tile that
      * scales and lifts. TileBehaviour's timing, so the whole screen moves alike (guide 18).
      */
@@ -179,6 +235,8 @@ public final class HomeActivity extends Activity {
         });
     }
 
+    // ------------------------------------------------------------- lifecycle
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -194,6 +252,8 @@ public final class HomeActivity extends Activity {
         pkgFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         pkgFilter.addDataScheme("package");
         registerReceiver(packageReceiver, pkgFilter);
+
+        networkStatus.start();
     }
 
     @Override
@@ -201,6 +261,7 @@ public final class HomeActivity extends Activity {
         super.onStop();
         safeUnregister(clockReceiver);
         safeUnregister(packageReceiver);
+        networkStatus.stop();
     }
 
     private void safeUnregister(BroadcastReceiver r) {
@@ -211,10 +272,60 @@ public final class HomeActivity extends Activity {
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (!openingOwnScreen) pendingEntryAnimation = true;
+        openingOwnScreen = false;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        // the automatic theme may have turned while an app was in front, or the mode was
+        // changed in settings
+        if (ThemeStore.isDark(this) != shownDark) {
+            recreate();
+            return;
+        }
+        applyBackgroundIfChanged();
+
+        visibleTiles = HomeSettings.visibleTiles(this);
+        tileScale = computeTileScale(visibleTiles);
+
         updateClock();
         rebuildDock();
+        RemoteBattery.refreshIfDue(this, new RemoteBattery.Listener() {
+            @Override
+            public void onRemoteBattery(int pct) {
+                showBattery(pct);
+            }
+        });
+
+        if (pendingEntryAnimation) {
+            pendingEntryAnimation = false;
+            playEntryAnimation();
+        }
+        askForWifiNameOnce();
+    }
+
+    /**
+     * The Wi-Fi line can show the network's name only with location access (Android 9).
+     * An update from GitHub cannot grant that, so the launcher asks once, on the box, the
+     * first time it runs; later the settings screen's "Wi-Fi adı" row asks again on request.
+     */
+    private void askForWifiNameOnce() {
+        if (HomeSettings.canReadWifiName(this) || HomeSettings.askedLocation(this)) return;
+        HomeSettings.setAskedLocation(this);
+        try {
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        if (requestCode == REQ_LOCATION) networkStatus.refresh();
     }
 
     @Override
@@ -244,6 +355,8 @@ public final class HomeActivity extends Activity {
         shelf.scrollTo(0, 0);
         rememberFocus(null, -1);
         focusFirstTile();
+        pendingEntryAnimation = true;
+        openingOwnScreen = false;
     }
 
     /** BACK on the home screen must not leave the launcher. */
@@ -256,6 +369,35 @@ public final class HomeActivity extends Activity {
         // stay put: a launcher is the bottom of the stack
     }
 
+    /**
+     * Arriving home: the shelf, its label, dots and chips fade up and settle a few dp.
+     * Only alpha and translation are animated, so nothing is re-laid out and the shelf's
+     * measured centre stays exactly where it is.
+     */
+    private void playEntryAnimation() {
+        float slide = ENTRY_SLIDE_DP * getResources().getDisplayMetrics().density;
+        View[] views = {shelf, focusedLabel, pageDots, chipsRow};
+        for (View v : views) {
+            v.animate().cancel();
+            v.setAlpha(0f);
+            v.setTranslationY(slide);
+            v.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(ENTRY_ANIM_MS)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
+    }
+
+    private void applyBackgroundIfChanged() {
+        long stamp = HomeSettings.hasCustomBackground(this)
+                ? HomeSettings.backgroundFile(this).lastModified() : 0L;
+        if (stamp == backgroundStamp) return;
+        backgroundStamp = stamp;
+        HomeSettings.applyBackground(this, background);
+    }
+
     private void updateClock() {
         Date now = new Date();
         clockTime.setText(timeFormat.format(now));
@@ -264,22 +406,58 @@ public final class HomeActivity extends Activity {
         clockDate.setText(date);
     }
 
+    // ------------------------------------------------------------ status line
+
+    /** Wi-Fi symbol and the network's name when connected; the struck-through symbol and "Bağlı değil" when not. */
+    private void showNetwork(int kind, String name) {
+        String label;
+        int icon;
+        switch (kind) {
+            case NetworkStatus.WIFI:
+                icon = R.drawable.ic_wifi;
+                label = name != null ? name : getString(R.string.net_wifi);
+                break;
+            case NetworkStatus.ETHERNET:
+                icon = R.drawable.ic_ethernet;
+                label = getString(R.string.net_ethernet);
+                break;
+            case NetworkStatus.OTHER:
+                icon = R.drawable.ic_wifi;
+                label = getString(R.string.net_other);
+                break;
+            default:
+                icon = R.drawable.ic_wifi_off;
+                label = getString(R.string.net_none);
+                break;
+        }
+        netIcon.setImageResource(icon);
+        netLabel.setText(label);
+    }
+
+    private void showBattery(int pct) {
+        if (pct < 0) {
+            batteryIcon.setVisibility(View.GONE);
+            batteryLabel.setVisibility(View.GONE);
+            return;
+        }
+        int color = getColor(pct <= 20 ? R.color.state_stopped : R.color.ink_dim);
+        batteryIcon.setColorFilter(color);
+        batteryLabel.setTextColor(color);
+        batteryLabel.setText(getString(R.string.battery_pct, pct));
+        batteryIcon.setVisibility(View.VISIBLE);
+        batteryLabel.setVisibility(View.VISIBLE);
+    }
+
     // ---------------------------------------------------------------- dock
 
     private void rebuildDock() {
         dock.clear();
         dock.addAll(DockStore.load(this));
-        if (focusToggleAfterThemeChange) {
-            // back from a theme flip: the shelf still has to be rebuilt, but focus belongs
-            // on the button so it can be pressed again straight away
-            focusToggleAfterThemeChange = false;
+        pruneUninstalled();
+        if (lastFocusedTop != 0) {
+            // back from Kutu Home's settings: focus returns to the gear
             renderDock(KEEP_FOCUS);
-            themeToggle.post(new Runnable() {
-                @Override
-                public void run() {
-                    themeToggle.requestFocus();
-                }
-            });
+            focusView(findViewById(lastFocusedTop));
         } else if (lastFocusedChip >= 0) {
             // returning from a chip panel: the shelf is rebuilt, but focus belongs on the chip
             renderDock(KEEP_FOCUS);
@@ -287,6 +465,65 @@ public final class HomeActivity extends Activity {
         } else {
             renderDock(lastFocusedPkg);
         }
+    }
+
+    /**
+     * A favourite whose app has been uninstalled leaves the shelf by itself, instead of
+     * staying as a dimmed "not installed" tile the human has to remove by hand. An app
+     * that is only disabled is still installed and keeps its dimmed tile, because it can
+     * come back with its data intact.
+     */
+    private void pruneUninstalled() {
+        boolean changed = false;
+        for (int i = dock.size() - 1; i >= 0; i--) {
+            String pkg = dock.get(i)[0];
+            if (AppRepository.isInstalled(this, pkg)) continue;
+            dock.remove(i);
+            changed = true;
+            if (pkg.equals(lastFocusedPkg)) lastFocusedPkg = neighbourAt(i);
+        }
+        if (changed) DockStore.save(this, dock);
+    }
+
+    /** The favourite that slid into position idx, or the new last one when idx was the end. */
+    private String neighbourAt(int idx) {
+        if (dock.isEmpty() || idx < 0) return null;
+        return dock.get(Math.min(idx, dock.size() - 1))[0];
+    }
+
+    /**
+     * Guide 19 fits about seven tiles. The human may choose five to nine; up to what the
+     * safe width holds the tiles keep their size, beyond it they shrink together so the
+     * shelf never runs into the overscan margin.
+     */
+    private float computeTileScale(int slots) {
+        int overscan = getResources().getDimensionPixelSize(R.dimen.overscan_h);
+        int max = getResources().getDisplayMetrics().widthPixels - (overscan * 2);
+        int tile = getResources().getDimensionPixelSize(R.dimen.tile_outer);
+        int pads = getResources().getDimensionPixelSize(R.dimen.shelf_padding) * 2
+                + getResources().getDimensionPixelSize(R.dimen.row_padding) * 2;
+        float fit = (max - pads) / (float) (tile * slots);
+        return Math.min(1f, fit);
+    }
+
+    private int scaled(int dimenRes) {
+        return Math.round(getResources().getDimensionPixelSize(dimenRes) * tileScale);
+    }
+
+    private void sizeTile(View tile) {
+        int outer = scaled(R.dimen.tile_outer);
+        int inset = scaled(R.dimen.tile_inset);
+        int iconPx = scaled(R.dimen.tile_icon);
+        ViewGroup.LayoutParams lp = tile.getLayoutParams();
+        lp.width = outer;
+        lp.height = outer;
+        tile.setLayoutParams(lp);
+        tile.setPadding(inset, inset, inset, inset);
+        View icon = tile.findViewById(R.id.tile_icon);
+        FrameLayout.LayoutParams ilp = (FrameLayout.LayoutParams) icon.getLayoutParams();
+        ilp.width = iconPx;
+        ilp.height = iconPx;
+        icon.setLayoutParams(ilp);
     }
 
     private void renderDock(String focusPkg) {
@@ -299,7 +536,7 @@ public final class HomeActivity extends Activity {
             return;
         }
 
-        int iconPx = getResources().getDimensionPixelSize(R.dimen.tile_icon);
+        int iconPx = scaled(R.dimen.tile_icon);
         LayoutInflater inflater = LayoutInflater.from(this);
         int gap = getResources().getDimensionPixelSize(R.dimen.tile_gap);
 
@@ -314,6 +551,7 @@ public final class HomeActivity extends Activity {
             }
 
             View tile = inflater.inflate(R.layout.view_tile, dockRow, false);
+            sizeTile(tile);
             ImageView icon = tile.findViewById(R.id.tile_icon);
 
             if (entry.available && entry.icon != null) {
@@ -323,7 +561,7 @@ public final class HomeActivity extends Activity {
                 TileGlass.apply(tile.findViewById(R.id.tile_card), entry.pkg, art);
                 tile.setAlpha(1f);
             } else {
-                // guide 19: dim an unavailable tile, never crash
+                // guide 19: a disabled (still installed) app is dimmed, never a crash
                 icon.setImageDrawable(getDrawable(R.drawable.kutu_icon));
                 tile.setAlpha(0.38f);
             }
@@ -332,7 +570,7 @@ public final class HomeActivity extends Activity {
             lp.setMarginStart(i == 0 ? 0 : gap);
             tile.setLayoutParams(lp);
             tile.setTag(entry.pkg);
-            tile.setNextFocusUpId(R.id.theme_toggle);
+            tile.setNextFocusUpId(R.id.settings_button);
 
             TileBehaviour.attach(tile, new TileBehaviour.Callbacks() {
                 @Override
@@ -376,13 +614,7 @@ public final class HomeActivity extends Activity {
         if (focusPkg != null) {
             View t = dockRow.findViewWithTag(focusPkg);
             if (t != null) {
-                final View target = t;
-                target.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        target.requestFocus();
-                    }
-                });
+                focusView(t);
                 return;
             }
         }
@@ -392,6 +624,26 @@ public final class HomeActivity extends Activity {
     private void rememberFocus(String pkg, int chipIndex) {
         lastFocusedPkg = pkg;
         lastFocusedChip = chipIndex;
+        lastFocusedTop = 0;
+    }
+
+    private void rememberTop(int viewId) {
+        lastFocusedPkg = null;
+        lastFocusedChip = -1;
+        lastFocusedTop = viewId;
+    }
+
+    private void focusView(final View v) {
+        if (v == null) {
+            focusFirstTile();
+            return;
+        }
+        v.post(new Runnable() {
+            @Override
+            public void run() {
+                v.requestFocus();
+            }
+        });
     }
 
     private void focusChip(final int index) {
@@ -399,16 +651,10 @@ public final class HomeActivity extends Activity {
             focusFirstTile();
             return;
         }
-        final View chip = chipsRow.getChildAt(index);
-        chip.post(new Runnable() {
-            @Override
-            public void run() {
-                chip.requestFocus();
-            }
-        });
+        focusView(chipsRow.getChildAt(index));
     }
 
-    /** Guide 19: at most ~7 visible slots; beyond that the shelf scrolls instead of growing. */
+    /** Guide 19: at most N visible slots; beyond that the shelf scrolls instead of growing. */
     private void clampShelfWidth() {
         shelf.post(new Runnable() {
             @Override
@@ -416,11 +662,11 @@ public final class HomeActivity extends Activity {
                 int overscan = getResources().getDimensionPixelSize(R.dimen.overscan_h);
                 int max = getResources().getDisplayMetrics().widthPixels - (overscan * 2);
 
-                int tile = getResources().getDimensionPixelSize(R.dimen.tile_outer);
+                int tile = scaled(R.dimen.tile_outer);
                 int gap = getResources().getDimensionPixelSize(R.dimen.tile_gap);
                 int shelfPad = getResources().getDimensionPixelSize(R.dimen.shelf_padding) * 2;
                 int rowPad = getResources().getDimensionPixelSize(R.dimen.row_padding) * 2;
-                int slots = MAX_UNSCROLLED_TILES;
+                int slots = visibleTiles;
                 int widest = (tile * slots) + (gap * (slots - 1)) + rowPad + shelfPad;
 
                 int cap = Math.min(max, widest);
@@ -428,19 +674,73 @@ public final class HomeActivity extends Activity {
                 // dockRow.getWidth() already includes its own padding
                 int natural = dockRow.getWidth() + shelfPad;
 
-                // fewer than seven: shelf shrinks and stays centred
+                // fewer than N: shelf shrinks and stays centred
                 lp.width = natural <= cap ? ViewGroup.LayoutParams.WRAP_CONTENT : cap;
                 shelf.setLayoutParams(lp);
+                shelf.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        buildPageDots();
+                    }
+                });
             }
         });
     }
 
+    // ------------------------------------------------------------ page dots
+
+    /** One dot per page of the shelf, only while it has more favourites than it shows. */
+    private void buildPageDots() {
+        int pages = dock.size() > visibleTiles
+                ? (dock.size() + visibleTiles - 1) / visibleTiles : 0;
+        if (pages == pageDots.getChildCount()
+                && (pages > 0) == (pageDots.getVisibility() == View.VISIBLE)) {
+            updateActiveDot();
+            return;
+        }
+        pageDots.removeAllViews();
+        if (pages == 0) {
+            pageDots.setVisibility(View.GONE);
+            return;
+        }
+        int size = getResources().getDimensionPixelSize(R.dimen.page_dot);
+        int gap = getResources().getDimensionPixelSize(R.dimen.page_dot_gap);
+        for (int i = 0; i < pages; i++) {
+            View dot = new View(this);
+            GradientDrawable d = new GradientDrawable();
+            d.setShape(GradientDrawable.OVAL);
+            dot.setBackground(d);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+            if (i > 0) lp.setMarginStart(gap);
+            pageDots.addView(dot, lp);
+        }
+        pageDots.setVisibility(View.VISIBLE);
+        updateActiveDot();
+    }
+
+    private void updateActiveDot() {
+        int pages = pageDots.getChildCount();
+        if (pages == 0) return;
+        View content = shelf.getChildAt(0);
+        int maxScroll = content == null ? 0
+                : Math.max(0, content.getWidth() - (shelf.getWidth() - shelf.getPaddingLeft() - shelf.getPaddingRight()));
+        int active = maxScroll == 0 ? 0 : Math.round(shelf.getScrollX() / (float) maxScroll * (pages - 1));
+        int on = getColor(R.color.ink);
+        int off = getColor(R.color.ink_dim);
+        for (int i = 0; i < pages; i++) {
+            GradientDrawable d = (GradientDrawable) pageDots.getChildAt(i).getBackground();
+            d.setColor(i == active ? on : off);
+            pageDots.getChildAt(i).setAlpha(i == active ? 1f : 0.45f);
+        }
+    }
+
     private View buildAddTile() {
         View tile = LayoutInflater.from(this).inflate(R.layout.view_tile, dockRow, false);
+        sizeTile(tile);
         ImageView icon = tile.findViewById(R.id.tile_icon);
         icon.setImageDrawable(getDrawable(R.drawable.ic_add));
         tile.setTag(ADD_TILE_TAG);
-        tile.setNextFocusUpId(R.id.theme_toggle);
+        tile.setNextFocusUpId(R.id.settings_button);
         TileBehaviour.attach(tile, new TileBehaviour.Callbacks() {
             @Override
             public void onShortPress(View v) {
@@ -465,13 +765,7 @@ public final class HomeActivity extends Activity {
 
     private void focusFirstTile() {
         if (dockRow.getChildCount() == 0) return;
-        final View first = dockRow.getChildAt(0);
-        first.post(new Runnable() {
-            @Override
-            public void run() {
-                first.requestFocus();
-            }
-        });
+        focusView(dockRow.getChildAt(0));
     }
 
     private void launch(AppEntry entry) {
@@ -510,10 +804,7 @@ public final class HomeActivity extends Activity {
                         DockStore.save(HomeActivity.this, dock);
                         // focus what slid into the gap, or the new last tile when the
                         // end of the shelf was the one removed
-                        String neighbour = null;
-                        if (!dock.isEmpty() && idx >= 0) {
-                            neighbour = dock.get(Math.min(idx, dock.size() - 1))[0];
-                        }
+                        String neighbour = neighbourAt(idx);
                         rememberFocus(neighbour, -1);
                         renderDock(neighbour);
                     }
@@ -646,26 +937,26 @@ public final class HomeActivity extends Activity {
 
     private void buildChips() {
         chipsRow.removeAllViews();
-        addChip(getString(R.string.chip_mirror), new Runnable() {
+        addChip(getString(R.string.chip_mirror), R.drawable.ic_chip_mirror, new Runnable() {
             @Override
             public void run() {
                 // guide 23: never open MirrorActivity; open our own panel
-                startActivity(new Intent(HomeActivity.this, MirrorPanelActivity.class));
+                openOwn(new Intent(HomeActivity.this, MirrorPanelActivity.class));
             }
         });
-        addChip(getString(R.string.chip_settings), new Runnable() {
+        addChip(getString(R.string.chip_settings), R.drawable.ic_chip_settings, new Runnable() {
             @Override
             public void run() {
                 openSettings();
             }
         });
-        addChip(getString(R.string.chip_transfer), new Runnable() {
+        addChip(getString(R.string.chip_transfer), R.drawable.ic_chip_transfer, new Runnable() {
             @Override
             public void run() {
                 openTransfer();
             }
         });
-        addChip(getString(R.string.chip_all_apps), new Runnable() {
+        addChip(getString(R.string.chip_all_apps), R.drawable.ic_chip_all_apps, new Runnable() {
             @Override
             public void run() {
                 openAllApps();
@@ -693,10 +984,17 @@ public final class HomeActivity extends Activity {
         }
     }
 
-    private void addChip(String label, final Runnable action) {
+    private void addChip(String label, int iconRes, final Runnable action) {
         TextView chip = (TextView) LayoutInflater.from(this)
                 .inflate(R.layout.view_chip, chipsRow, false);
         chip.setText(label);
+
+        // the icon reads the chip's own ink token, so it follows the theme with the text
+        int iconSize = getResources().getDimensionPixelSize(R.dimen.chip_icon);
+        Drawable icon = getDrawable(iconRes);
+        if (icon != null) icon.setBounds(0, 0, iconSize, iconSize);
+        chip.setCompoundDrawablesRelative(icon, null, null, null);
+        chip.setCompoundDrawablePadding(getResources().getDimensionPixelSize(R.dimen.chip_icon_pad));
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -722,8 +1020,18 @@ public final class HomeActivity extends Activity {
         chipsRow.addView(chip);
     }
 
+    /** Opens one of Kutu Home's own screens; coming back from it replays no entry animation. */
+    private void openOwn(Intent i) {
+        openingOwnScreen = true;
+        try {
+            startActivity(i);
+        } catch (Exception e) {
+            openingOwnScreen = false;
+        }
+    }
+
     private void openAllApps() {
-        startActivity(new Intent(this, AllAppsActivity.class));
+        openOwn(new Intent(this, AllAppsActivity.class));
     }
 
     /**

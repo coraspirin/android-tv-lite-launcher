@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Clock block: wired connection. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:strokeColor="@color/ink_on_glass" android:strokeWidth="2" android:strokeLineJoin="round"
+        android:pathData="M5,5 L19,5 L19,15 L15.5,15 L15.5,19 L8.5,19 L8.5,15 L5,15 Z" />
+    <path android:strokeColor="@color/ink_on_glass" android:strokeWidth="1.6" android:strokeLineCap="round"
+        android:pathData="M8.5,8 L8.5,11 M11,8 L11,11 M13.5,8 L13.5,11 M16,8 L16,11" />
+</vector>

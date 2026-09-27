@@ -23,6 +23,18 @@
     <!-- round theme button, top-left; mirrors the clock block at top-right -->
     <dimen name="theme_toggle">44dp</dimen>
     <dimen name="theme_toggle_icon">22dp</dimen>
+    <!-- status line under the date: Wi-Fi and the remote's battery -->
+    <dimen name="status_icon">16dp</dimen>
+    <dimen name="status_text">14sp</dimen>
+    <dimen name="status_label_max">260dp</dimen>
+
+    <!-- shelf page dots, shown only when the shelf scrolls -->
+    <dimen name="page_dot">6dp</dimen>
+    <dimen name="page_dot_gap">8dp</dimen>
+
+    <!-- chip icon at the start -->
+    <dimen name="chip_icon">18dp</dimen>
+    <dimen name="chip_icon_pad">8dp</dimen>
 
     <dimen name="clock_time">34sp</dimen>
     <dimen name="clock_date">15sp</dimen>
@@ -35,6 +47,11 @@
     <dimen name="menu_radius">22dp</dimen>
     <!-- the mirror panel holds a title, a state line and the switch; matches menu_width -->
     <dimen name="panel_width">360dp</dimen>
+    <!-- Kutu Home settings: rows carry a label and a value, so the card is wider -->
+    <dimen name="settings_width">480dp</dimen>
+    <!-- background picker thumbnails, 16:9 -->
+    <dimen name="bg_thumb_w">224dp</dimen>
+    <dimen name="bg_thumb_h">126dp</dimen>
 
     <dimen name="allapps_tile">108dp</dimen>
     <dimen name="allapps_icon">60dp</dimen>

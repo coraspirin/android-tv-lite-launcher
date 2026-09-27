@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One background choice. Outer box focusable with growth room, inner glass card scales;
+     the same two-layer idea as view_tile.xml. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:focusable="true"
+    android:padding="12dp">
+
+    <FrameLayout
+        android:id="@+id/thumb_card"
+        android:layout_width="@dimen/bg_thumb_w"
+        android:layout_height="@dimen/bg_thumb_h"
+        android:background="@drawable/chip_bg"
+        android:duplicateParentState="true"
+        android:padding="4dp">
+
+        <ImageView
+            android:id="@+id/thumb_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop" />
+
+        <!-- marks the background in use -->
+        <ImageView
+            android:id="@+id/thumb_current"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="8dp"
+            android:contentDescription="@null"
+            android:src="@drawable/on_home_dot"
+            android:visibility="gone" />
+    </FrameLayout>
+</FrameLayout>

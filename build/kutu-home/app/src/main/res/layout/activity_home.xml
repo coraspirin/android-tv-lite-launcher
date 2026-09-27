@@ -6,7 +6,9 @@
     android:background="@android:color/black">
 
     <!--
-        guide 17: supplied image, used verbatim, fitted to 16:9 without stretch.
+        guide 17: supplied image, used verbatim, fitted to 16:9 without stretch. The human
+        may replace it from Kutu Home's settings with a photo sent through Kutu Aktarım;
+        HomeSettings.applyBackground swaps the drawable, everything else stays as it is.
 
         bg_scrim is transparent in the light theme and dark in the night one, so the dark
         theme dims this image rather than shipping a second copy of it. It is a foreground
@@ -22,22 +24,23 @@
         android:scaleType="centerCrop"
         android:src="@drawable/kutu_home_background" />
 
-    <!-- theme toggle, top-left; mirrors the clock block's margins at top-right -->
+    <!-- top-left: Kutu Home settings (theme, background, shelf size, updates);
+         mirrors the clock block at top-right -->
     <ImageView
-        android:id="@+id/theme_toggle"
+        android:id="@+id/settings_button"
         android:layout_width="@dimen/theme_toggle"
         android:layout_height="@dimen/theme_toggle"
         android:layout_gravity="top|start"
-        android:layout_marginTop="@dimen/overscan_v"
         android:layout_marginStart="@dimen/overscan_h"
+        android:layout_marginTop="@dimen/overscan_v"
         android:background="@drawable/theme_toggle_bg"
-        android:contentDescription="@string/theme_toggle"
+        android:contentDescription="@string/kutu_settings"
         android:focusable="true"
         android:padding="11dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_theme" />
+        android:src="@drawable/ic_gear" />
 
-    <!-- calm upper area: time and date, top-right -->
+    <!-- calm upper area: time, date and the status line, top-right -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -62,6 +65,54 @@
             android:fontFamily="sans-serif"
             android:textColor="@color/ink_dim"
             android:textSize="@dimen/clock_date" />
+
+        <!-- Wi-Fi name / "Bağlı değil", and the remote's battery when it can be read -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/net_icon"
+                android:layout_width="@dimen/status_icon"
+                android:layout_height="@dimen/status_icon"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_wifi_off"
+                android:tint="@color/ink_dim" />
+
+            <TextView
+                android:id="@+id/net_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:ellipsize="end"
+                android:maxWidth="@dimen/status_label_max"
+                android:maxLines="1"
+                android:textColor="@color/ink_dim"
+                android:textSize="@dimen/status_text" />
+
+            <ImageView
+                android:id="@+id/battery_icon"
+                android:layout_width="@dimen/status_icon"
+                android:layout_height="@dimen/status_icon"
+                android:layout_marginStart="14dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_remote_battery"
+                android:tint="@color/ink_dim"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/battery_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:maxLines="1"
+                android:textColor="@color/ink_dim"
+                android:textSize="@dimen/status_text"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 
     <!--
@@ -133,11 +184,27 @@
             android:textColor="@color/ink"
             android:textSize="@dimen/focused_label" />
 
+        <!--
+            One dot per page of the shelf, shown only when it scrolls. Chained like
+            move_hint: RelativeLayout walks past a GONE anchor, so the hint and the chips
+            sit directly under the shelf whenever there are no dots.
+        -->
+        <LinearLayout
+            android:id="@+id/page_dots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/shelf"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/move_hint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/shelf"
+            android:layout_below="@id/page_dots"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="12dp"
             android:textColor="@color/ink_dim"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Clock block: the remote's battery. The level is written next to it as a number. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:strokeColor="@color/ink_on_glass" android:strokeWidth="2" android:strokeLineJoin="round"
+        android:pathData="M4,7 L17.5,7 Q19,7 19,8.5 L19,15.5 Q19,17 17.5,17 L4,17 Q2.5,17 2.5,15.5 L2.5,8.5 Q2.5,7 4,7 Z" />
+    <path android:fillColor="@color/ink_on_glass" android:pathData="M20.2,10 L21.5,10 L21.5,14 L20.2,14 Z M5,9.5 L12,9.5 L12,14.5 L5,14.5 Z" />
+</vector>

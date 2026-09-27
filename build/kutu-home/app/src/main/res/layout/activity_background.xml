@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Background picker: the bundled default plus the photos sent to Kutu Aktarım's
+     "Arka planlar" folder, as 16:9 thumbnails on the same frosted veil as All Apps. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,8 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@null"
-        android:scaleType="centerCrop"
-        android:src="@drawable/kutu_home_background" />
+        android:scaleType="centerCrop" />
 
     <View
         android:layout_width="match_parent"
@@ -32,23 +33,22 @@
             android:layout_marginBottom="6dp"
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
-            android:text="@string/all_apps_title"
+            android:text="@string/bg_title"
             android:textColor="@color/ink_on_glass"
             android:textSize="24sp" />
 
         <TextView
-            android:id="@+id/all_apps_focused_label"
+            android:id="@+id/bg_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
-            android:ellipsize="end"
             android:gravity="center"
-            android:maxLines="1"
+            android:maxLines="2"
             android:textColor="@color/ink_on_glass_dim"
             android:textSize="@dimen/hint_text" />
 
         <ScrollView
-            android:id="@+id/all_apps_scroll"
+            android:id="@+id/bg_scroll"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -57,10 +57,8 @@
             android:padding="10dp"
             android:scrollbars="none">
 
-            <!-- column count is worked out from the screen width in AllAppsActivity, and
-                 the grid is centred, so every row is full and the spare width splits evenly -->
             <GridLayout
-                android:id="@+id/all_apps_grid"
+                android:id="@+id/bg_grid"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

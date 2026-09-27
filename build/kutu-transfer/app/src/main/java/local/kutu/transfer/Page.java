@@ -166,6 +166,10 @@ final class Page {
             + "where.innerHTML='Bu klasör salt okunur'}"
             + "else{drop.style.display='';"
             + "where.innerHTML='Yükleme hedefi: <b>'+esc(j.crumbs[j.crumbs.length-1].n)+'</b>'}"
+            // the folder Kutu Home reads backgrounds from says so, once the human is inside it
+            + "if(j.path==='kutu/Arka planlar'){where.innerHTML+=' · <span class=\"mt\">"
+            + "Buraya yüklenen JPG/PNG resimler televizyonda Kutu ayarları → Arka plan"
+            + " bölümünden seçilir</span>'}"
 
             + "var h='';"
             + "if(j.path!==''){h+='<div class=\"row dir\" data-go=\"'+attr(j.parent)+'\">'"

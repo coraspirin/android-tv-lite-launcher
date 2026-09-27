@@ -134,9 +134,15 @@ final class AppRepository {
         return i;
     }
 
+    /**
+     * True while the package is on the box at all, disabled or not. The dock uses this to
+     * tell an uninstalled favourite (leaves the shelf) from a disabled one (stays, dimmed).
+     */
     static boolean isInstalled(Context ctx, String pkg) {
         try {
-            ctx.getPackageManager().getApplicationInfo(pkg, 0);
+            ctx.getPackageManager().getApplicationInfo(pkg,
+                    PackageManager.MATCH_DISABLED_COMPONENTS
+                            | PackageManager.MATCH_DISABLED_UNTIL_USED_COMPONENTS);
             return true;
         } catch (Exception e) {
             return false;

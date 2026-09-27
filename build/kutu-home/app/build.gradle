@@ -12,8 +12,8 @@ android {
         applicationId 'local.kutu.home'
         minSdk 28
         targetSdk 28
-        versionCode 1
-        versionName '1.0'
+        versionCode 3
+        versionName '1.2'
         resourceConfigurations += ['tr', 'en']
     }
 

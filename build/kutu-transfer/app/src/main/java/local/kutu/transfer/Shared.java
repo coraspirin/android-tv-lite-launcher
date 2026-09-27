@@ -39,6 +39,12 @@ final class Shared {
     static final String ROOT_APP = "kutu";
     static final String ROOT_SD = "sd";
 
+    /**
+     * Photos placed here can be picked as Kutu Home's background. The folder lives inside the
+     * app's own root, so it is reachable from the browser without any storage permission.
+     */
+    static final String BACKGROUNDS = "Arka planlar";
+
     private Shared() {
     }
 
@@ -82,6 +88,13 @@ final class Shared {
         if (f == null) f = ctx.getFilesDir();     // no external storage mounted
         if (!f.exists()) f.mkdirs();
         return f;
+    }
+
+    /** The background photos folder, created on first use. */
+    static File backgroundsDir(Context ctx) {
+        File d = new File(dir(ctx), BACKGROUNDS);
+        if (!d.isDirectory()) d.mkdirs();
+        return d;
     }
 
     /**

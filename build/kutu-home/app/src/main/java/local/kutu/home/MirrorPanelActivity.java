@@ -11,9 +11,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 /**
  * Guide 23: the in-launcher Screen Mirroring panel.
  *
@@ -34,7 +31,6 @@ public final class MirrorPanelActivity extends Activity {
         super.attachBaseContext(base);
     }
 
-    private static final int AIRPLAY_PORT = 7000;
     private static final String RECEIVER_CONTROL = "local.kutu.mirror.ReceiverControlActivity";
     private static final String RECEIVER_STOP = "local.kutu.mirror.ReceiverStopActivity";
 
@@ -78,7 +74,7 @@ public final class MirrorPanelActivity extends Activity {
         }
 
         toggle.setVisibility(View.VISIBLE);
-        Boolean listening = isPortListening(AIRPLAY_PORT);
+        Boolean listening = PortState.isListening(PortState.AIRPLAY_PORT);
 
         if (listening == null) {
             state.setText(R.string.mirror_state_unknown);
@@ -131,47 +127,5 @@ public final class MirrorPanelActivity extends Activity {
                 refreshState();
             }
         }, SETTLE_MS);
-    }
-
-    /**
-     * @return TRUE listening, FALSE not listening, null when the state cannot be read
-     * (newer Android restricts /proc/net/tcp; the panel then shows neutral).
-     */
-    private Boolean isPortListening(int port) {
-        Boolean any = null;
-        for (String path : new String[]{"/proc/net/tcp", "/proc/net/tcp6"}) {
-            Boolean r = scanProcNet(path, port);
-            if (r == null) continue;
-            any = (any == null) ? r : (any || r);
-        }
-        return any;
-    }
-
-    private Boolean scanProcNet(String path, int port) {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(path));
-            String line = reader.readLine();   // header
-            if (line == null) return null;
-            String hexPort = String.format("%04X", port);
-            while ((line = reader.readLine()) != null) {
-                String[] cols = line.trim().split("\\s+");
-                if (cols.length < 4) continue;
-                int colon = cols[1].lastIndexOf(':');
-                if (colon < 0) continue;
-                if (!cols[1].substring(colon + 1).equalsIgnoreCase(hexPort)) continue;
-                if ("0A".equalsIgnoreCase(cols[3])) return Boolean.TRUE;   // TCP_LISTEN
-            }
-            return Boolean.FALSE;
-        } catch (Exception e) {
-            return null;
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (Exception ignored) {
-                }
-            }
-        }
     }
 }

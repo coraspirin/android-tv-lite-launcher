@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    All Apps: marks an app that is already on the home shelf. White as asked, with a
+    deep-accent rim: a white dot alone disappears on the light glass cards.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <size android:width="10dp" android:height="10dp" />
+    <solid android:color="#FFFFFFFF" />
+    <stroke android:width="1.5dp" android:color="@color/accent_deep" />
+</shape>

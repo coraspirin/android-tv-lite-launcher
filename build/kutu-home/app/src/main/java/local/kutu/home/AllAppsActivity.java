@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Guide 23: All Apps. Lists user-facing launchable TV apps, excluding Kutu Home and
- * Kutu Mirror, using the same normalised icon system as the shelf. Title and focused
- * label are centred.
+ * Guide 23: All Apps. Lists user-facing launchable TV apps, excluding Kutu Home,
+ * Kutu Mirror and Kutu Aktarım, using the same normalised icon system as the shelf.
+ * Title and focused label are centred; apps already on the shelf carry a white dot.
  */
 public final class AllAppsActivity extends Activity {
 
@@ -30,8 +30,6 @@ public final class AllAppsActivity extends Activity {
         applyOverrideConfiguration(ThemeStore.override(base, ThemeStore.isDark(base)));
         super.attachBaseContext(base);
     }
-
-    private static final int COLUMNS = 6;
 
     private GridLayout grid;
     private ScrollView scroll;
@@ -46,6 +44,7 @@ public final class AllAppsActivity extends Activity {
         grid = findViewById(R.id.all_apps_grid);
         scroll = findViewById(R.id.all_apps_scroll);
         focusedLabel = findViewById(R.id.all_apps_focused_label);
+        HomeSettings.applyBackground(this, (ImageView) findViewById(R.id.background));
     }
 
     @Override
@@ -67,7 +66,7 @@ public final class AllAppsActivity extends Activity {
 
     private void render() {
         grid.removeAllViews();
-        grid.setColumnCount(COLUMNS);
+        grid.setColumnCount(columns());
 
         List<AppEntry> apps = AppRepository.loadLaunchable(this);
         int iconPx = getResources().getDimensionPixelSize(R.dimen.allapps_icon);
@@ -93,6 +92,7 @@ public final class AllAppsActivity extends Activity {
             lp.setMargins(0, 0, 0, 0);
             tile.setLayoutParams(lp);
             tile.setTag(entry.pkg);
+            markOnHome(tile, entry.pkg);
 
             TileBehaviour.attach(tile, new TileBehaviour.Callbacks() {
                 @Override
@@ -138,6 +138,26 @@ public final class AllAppsActivity extends Activity {
         }
     }
 
+    /**
+     * As many columns as the screen holds. A fixed count left a strip of unused width at
+     * the right of every row on a 1080p box; the grid itself is centred in the layout, so
+     * whatever is left over after the last whole column is split evenly on both sides.
+     */
+    private int columns() {
+        int overscan = getResources().getDimensionPixelSize(R.dimen.overscan_h);
+        int scrollPad = scroll.getPaddingLeft() + scroll.getPaddingRight();
+        int avail = getResources().getDisplayMetrics().widthPixels - (overscan * 2) - scrollPad;
+        int cell = getResources().getDimensionPixelSize(R.dimen.allapps_outer);
+        return Math.max(1, avail / cell);
+    }
+
+    /** The white dot on an app that is already on the home shelf. */
+    private void markOnHome(View tile, String pkg) {
+        if (tile == null) return;
+        View dot = tile.findViewById(R.id.on_home_dot);
+        if (dot != null) dot.setVisibility(DockStore.contains(dock, pkg) ? View.VISIBLE : View.GONE);
+    }
+
     private void ensureVisible(final View v) {
         scroll.post(new Runnable() {
             @Override
@@ -178,6 +198,7 @@ public final class AllAppsActivity extends Activity {
                     DockStore.remove(dock, entry.pkg);
                     DockStore.save(AllAppsActivity.this, dock);
                     showLabel(entry);
+                    markOnHome(grid.findViewWithTag(entry.pkg), entry.pkg);
                 }
             });
         } else {
@@ -187,6 +208,7 @@ public final class AllAppsActivity extends Activity {
                     dock.add(new String[]{entry.pkg, entry.label});
                     DockStore.save(AllAppsActivity.this, dock);
                     showLabel(entry);
+                    markOnHome(grid.findViewWithTag(entry.pkg), entry.pkg);
                 }
             });
         }

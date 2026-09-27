@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- guide 15: the only permission Kutu Home may request.
-         Needed so ACTION_UNINSTALL_PACKAGE can show Android's own
-         confirmation dialog. Kutu Home never uninstalls silently. -->
+    <!--
+        guide 15: Kutu Home still holds no INTERNET permission: the launcher cannot reach
+        the network. Everything below only reads state on the box.
+
+        REQUEST_DELETE_PACKAGES: so ACTION_UNINSTALL_PACKAGE can show Android's own
+        confirmation dialog. Kutu Home never uninstalls silently.
+        ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE: whether and to which Wi-Fi the box is
+        connected, for the line under the clock. Neither gives network access.
+        ACCESS_COARSE_LOCATION: Android 9 shows an app the Wi-Fi network's NAME only if it
+        holds location access. It is the one runtime ("dangerous") permission here; it is
+        granted once at setup (pm grant) and used for nothing else - Kutu Home never asks
+        for a location. Without it the line says "Wi-Fi bağlı" instead of the name.
+        BLUETOOTH: reads the remote's battery level from its BLE Battery Service.
+    -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
     <uses-feature android:name="android.software.leanback" android:required="true" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
@@ -40,6 +55,20 @@
 
         <activity
             android:name=".AllAppsActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/KutuTheme" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/KutuTheme.Transparent" />
+
+        <activity
+            android:name=".BackgroundActivity"
             android:configChanges="keyboardHidden|navigation|orientation|screenSize"
             android:exported="false"
             android:screenOrientation="landscape"

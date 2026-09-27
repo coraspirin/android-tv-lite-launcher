@@ -49,3 +49,8 @@ build/kutu-transfer/tools/app.js
 build/kutu-transfer/tools/gate.html
 build/kutu-transfer/tools/gate.js
 build/kutu-transfer/tools/node_modules/
+
+
+ESKI_MIBOX-CLAUDE-MASTER-GUIDE.md
+# tools/release.ps1 output; the APKs go to GitHub Releases, not into git
+release/

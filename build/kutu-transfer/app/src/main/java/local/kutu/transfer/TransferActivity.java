@@ -54,6 +54,8 @@ public final class TransferActivity extends Activity {
     protected void onCreate(Bundle saved) {
         super.onCreate(saved);
         setContentView(buildUi());
+        // so the browser shows the folder Kutu Home picks backgrounds from
+        Shared.backgroundsDir(this);
         TransferService.start(this);
         askForStorage();
         handler.post(tick);

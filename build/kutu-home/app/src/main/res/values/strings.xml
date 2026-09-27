@@ -30,6 +30,40 @@
     <string name="tile_add">Uygulama ekle</string>
     <string name="on_home_suffix">ana ekranda</string>
 
-    <!-- content description only; the button shows an icon, never this text -->
-    <string name="theme_toggle">Temayı değiştir</string>
+
+    <!-- status line under the clock -->
+    <string name="net_none">Bağlı değil</string>
+    <string name="net_wifi">Wi-Fi bağlı</string>
+    <string name="net_ethernet">Kablolu bağlantı</string>
+    <string name="net_other">Bağlı</string>
+    <string name="battery_pct">%%%1$d</string>
+
+    <!-- Kutu Home settings -->
+    <string name="kutu_settings">Kutu ayarları</string>
+    <string name="settings_title">Kutu Home ayarları</string>
+    <string name="set_theme">Tema</string>
+    <string name="set_theme_light">Açık</string>
+    <string name="set_theme_dark">Koyu</string>
+    <string name="set_theme_auto">Otomatik</string>
+    <string name="set_dark_from">Koyu tema başlangıcı</string>
+    <string name="set_light_from">Açık tema başlangıcı</string>
+    <string name="set_background">Arka plan</string>
+    <string name="set_background_default">Varsayılan</string>
+    <string name="set_background_custom">Özel resim</string>
+    <string name="set_visible">Ana ekranda görünen uygulama</string>
+    <string name="set_wifi_name">Wi-Fi adı</string>
+    <string name="set_wifi_name_on">Gösteriliyor</string>
+    <string name="set_wifi_name_off">İzin ver</string>
+    <string name="set_update">Güncellemeleri denetle</string>
+    <string name="set_version">Sürüm</string>
+    <string name="set_hint_adjust">◀ ▶ değiştir · GERİ kapat</string>
+    <string name="update_missing">Güncelleme için Kutu Aktarım gerekli</string>
+
+    <!-- background picker -->
+    <string name="bg_title">Arka plan</string>
+    <string name="bg_default">Varsayılan</string>
+    <string name="bg_transfer_missing">Kutu Aktarım kurulu değil. Telefondan resim göndermek için gerekli.</string>
+    <string name="bg_empty">Telefondan resim eklemek için: Dosya Aktarımı → tarayıcıda "Arka planlar" klasörüne JPG/PNG yükleyin.</string>
+    <string name="bg_applying">Arka plan hazırlanıyor…</string>
+    <string name="bg_failed">Resim açılamadı</string>
 </resources>

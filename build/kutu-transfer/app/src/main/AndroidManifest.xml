@@ -71,6 +71,22 @@
             android:noHistory="true"
             android:theme="@android:style/Theme.NoDisplay" />
 
+        <!--
+            Update screen, opened from Kutu Home's settings. Exported for the same reason as the
+            shims above, and like them it takes no parameters: it only ever checks this project's
+            own GitHub releases, and installs only through Android's confirmation screen.
+        -->
+        <activity
+            android:name=".UpdateActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:screenOrientation="landscape" />
+
+        <!-- PackageInstaller's answer. Not exported: only our own PendingIntent reaches it. -->
+        <receiver
+            android:name=".UpdateStatusReceiver"
+            android:exported="false" />
+
         <service
             android:name=".TransferService"
             android:exported="false" />
@@ -85,6 +101,16 @@
             android:authorities="local.kutu.transfer.files"
             android:exported="false"
             android:grantUriPermissions="true" />
+
+        <!--
+            Kutu Home's background picker reads the "Arka planlar" folder through this. Read-only,
+            one folder, images only. Exported without a permission because the two apps have
+            separate signing keys; any app on the box could therefore read these photos.
+        -->
+        <provider
+            android:name=".BackgroundProvider"
+            android:authorities="local.kutu.transfer.backgrounds"
+            android:exported="true" />
 
     </application>
 
