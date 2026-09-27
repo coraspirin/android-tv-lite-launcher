@@ -417,7 +417,7 @@ function Invoke-KutuInstall {
     Step 12 'Bitti' 'Done'
     foreach ($pkg in $InstallOrder) { Good '{0} {1}' '{0} {1}' (Nm $pkg) $manifest.apps.$pkg.versionName }
     Info 'Sonraki g\u00fcncellemeler i\u00e7in bilgisayar gerekmez:' 'Later updates do not need a computer:'
-    Info 'Kutu Home > sa\u011f \u00fcstteki \u00e7ark > G\u00fcncellemeleri denetle.' 'Kutu Home > gear at the top left > Check for updates.'
+    Info 'Kutu Home > sol \u00fcstteki \u00e7ark > G\u00fcncellemeleri denetle.' 'Kutu Home > gear at the top left > Check for updates.'
     if ($DryRun) {
         Warn 'DENEME MODU: hi\u00e7bir \u015fey de\u011fi\u015ftirilmedi, ADB a\u00e7\u0131k b\u0131rak\u0131ld\u0131.' 'DRY RUN: nothing was changed, ADB left on.'
     } elseif ($KeepAdb) {
