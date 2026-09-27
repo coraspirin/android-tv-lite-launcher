@@ -296,3 +296,12 @@ class loads. Root names in listings and crumbs ("Kutu Klasörü"/"Kutu folder", 
 
 `tools/extract.py` now writes both pages (`app.html`, `app-en.html`, ...); `browse-test.js` runs
 against either (`LANG_PAGE=en`). All checks pass in both languages.
+
+## 1.2.1 - update screen refreshes - 2026-09-27
+
+versionCode 4. Found while updating the box to v1.3.0: the update screen stayed in Kutu
+Transfer's task after an earlier update, and opening it again from Kutu Home only brought that
+task forward, so it showed the previous check ("Kutu Home 1.2.2 · Güncel") a release late.
+`onRestart` now checks GitHub again unless an install is in progress. An install result that
+arrives while the screen is not in front is kept and applied when it returns, so the screen can no
+longer be left waiting on a result it missed.

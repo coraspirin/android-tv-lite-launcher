@@ -88,11 +88,29 @@ public final class UpdateActivity extends Activity {
         check();
     }
 
+    /**
+     * Opened again from Kutu Home while this screen still sits in its task (say, after Home
+     * updated itself and the human went back to it): Android only brings the task forward, so
+     * without this the screen would show the last check - possibly a release ago. An install
+     * still in progress keeps its own state instead.
+     */
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (!busy) check();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         visible = this;
-        if (!available.isEmpty()) render();   // back from the installer: versions may have moved
+        if (pendingSuccess != null) {
+            boolean ok = pendingSuccess;
+            pendingSuccess = null;
+            applyResult(ok, pendingMessage);
+        } else if (!available.isEmpty()) {
+            render();
+        }   // back from the installer: versions may have moved
     }
 
     @Override
@@ -287,18 +305,30 @@ public final class UpdateActivity extends Activity {
         }
     }
 
+    /** An install result that arrived while this screen was not in front, applied on return. */
+    private static Boolean pendingSuccess;
+    private static String pendingMessage;
+
     /** Called by UpdateStatusReceiver once Android has finished or refused an install. */
     static void onInstallResult(boolean success, String message) {
         UpdateActivity a = visible;
-        if (a == null) return;
-        a.busy = false;
-        deleteTree(new File(a.getCacheDir(), "updates"));
-        if (success) {
-            a.status.setText(R.string.update_done);
-        } else {
-            a.status.setText(a.getString(R.string.update_failed, message == null ? "" : message));
+        if (a == null) {
+            pendingSuccess = success;
+            pendingMessage = message;
+            return;
         }
-        a.render();
+        a.applyResult(success, message);
+    }
+
+    private void applyResult(boolean success, String message) {
+        busy = false;
+        deleteTree(new File(getCacheDir(), "updates"));
+        if (success) {
+            status.setText(R.string.update_done);
+        } else {
+            status.setText(getString(R.string.update_failed, message == null ? "" : message));
+        }
+        render();
     }
 
     // --------------------------------------------------------------- network
