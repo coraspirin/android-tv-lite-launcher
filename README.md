@@ -58,7 +58,7 @@ Everything speaks English and Turkish. The TV apps follow the TV's language, the
 
 | App | Package | What it does |
 |---|---|---|
-| **Kutu Home** | `local.kutu.home` | Liquid-glass launcher with a centred shelf, focus rings coloured by each app's icon, a light, dark or automatic theme, the Wi-Fi name and the remote's battery under the clock, and a background chosen from your own photos. It has no network permission, no background service and 0 % idle CPU |
+| **Kutu Home** | `local.kutu.home` | Liquid-glass launcher with a centred shelf, focus rings coloured by each app's icon, a light, dark or automatic theme, the Wi-Fi name and the remote's battery under the clock, and a background chosen from your own photos. Its own dimmed clock screen saver keeps the box from sleeping early. It has no network permission, no background service and 0 % idle CPU |
 | **Kutu Mirror** | `local.kutu.mirror` | AirPlay receiver named **Kutu**. It mirrors an iPhone, iPad or Mac screen with sound, follows the phone when it rotates, and plays AirPlay Video. It uses hardware H.264 only and holds no wakelock while idle. It never opens its screen from a bare network connection |
 | **Kutu Transfer** (Kutu Aktarım) | `local.kutu.transfer` | On-demand, PIN-protected file transfer from any browser on your network. You can upload, download and install APKs. Close the screen and the port closes with it. It also delivers background photos to Kutu Home and installs updates from GitHub Releases |
 

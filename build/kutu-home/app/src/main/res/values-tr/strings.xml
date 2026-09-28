@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Kutu Home</string>
+    <string name="dream_name">Kutu Saat</string>
 
     <string name="chip_mirror">Ekran Yansıtma</string>
     <string name="chip_settings">Ayarlar</string>

@@ -593,3 +593,37 @@ English on any other.
 - The version row in settings reads its app names from strings (Yansıtma/Aktarım, Mirror/Transfer).
 - The "Arka planlar" folder keeps its name in both languages: it is a path shared with Kutu
   Transfer and the photos already live there.
+
+## 1.4 - Screen saver - 2026-09-28
+
+versionCode 8. Testers' boxes were going to sleep (and CEC turning the TV off) at the
+screen-saver time instead of the user's "Put device to sleep" time.
+
+Cause: the setup disables `com.android.dreams.basic` and `com.google.android.backdrop`. When
+`screen_off_timeout` runs out, PowerManager enters DREAMING and DreamManager tries the
+component in `secure screensaver_components`. A disabled component never starts, so
+PowerManager sees the dream end and puts the box to sleep at once; `sleep_timeout` never
+gets a say.
+
+Fix: `KutuDream`, a `DreamService` in Kutu Home ("Kutu Saat" / "Kutu Clock").
+
+- Black screen, dimmed (`setScreenBright(false)`), time and date in the home clock's formats.
+- Redrawn by `ACTION_TIME_TICK` and moved to a random spot inside a 5 % margin each minute,
+  so nothing burns in. No animation, no network, no wakelock.
+- The system binds it only while dreaming; idle, `dumpsys activity services local.kutu.home`
+  is still expected to be `(nothing)`.
+- `install.ps1` step 9 points `screensaver_components` at `local.kutu.home/.KutuDream`
+  (and sets `screensaver_enabled 1`) only when the current screen saver's package is disabled
+  or missing, on any box. The old value goes into the undo record; `RESTORE-ALL.ps1` deletes
+  the setting so the system default returns. Re-running the installer fixes boxes that are
+  already set up.
+- Kutu Mirror 1.2 wakes the screen before it opens its activity, so a session that starts
+  during the screen saver is not hidden behind the clock (see KUTU-MIRROR.md).
+
+### Not yet run on the box
+
+Built (1 094 488 bytes) but no box was connected on 2026-09-28. To check:
+`settings get secure screensaver_components` (expected before: backdrop, disabled),
+then with `settings put system screen_off_timeout 60000` → `dumpsys power | grep mWakefulness`
+must read `Dreaming`, not `Asleep`; a key on the remote returns to Home; a short
+`sleep_timeout` still sleeps the box after the dream.

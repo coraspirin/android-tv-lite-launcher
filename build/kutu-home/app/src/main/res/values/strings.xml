@@ -5,6 +5,7 @@
 -->
 <resources>
     <string name="app_name">Kutu Home</string>
+    <string name="dream_name">Kutu Clock</string>
 
     <string name="chip_mirror">Screen Mirroring</string>
     <string name="chip_settings">Settings</string>

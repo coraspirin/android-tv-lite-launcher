@@ -53,6 +53,10 @@ if ($PSCmdlet.ShouldProcess('animation scales', 'set 1.0')) {
   & $Adb -s $Device shell "settings put global transition_animation_scale 1.0"
   & $Adb -s $Device shell "settings put global animator_duration_scale 1.0"
 }
+# the setup may have pointed the screen saver at Kutu Home; the system default comes back
+if ($PSCmdlet.ShouldProcess('screen saver', 'reset to system default')) {
+  & $Adb -s $Device shell "settings delete secure screensaver_components"
+}
 
 Write-Host "`n[4/4] Verifying..." -ForegroundColor Yellow
 if ($WhatIfPreference) { Write-Host "  (skipped in -WhatIf)" -ForegroundColor Gray; return }

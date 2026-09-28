@@ -32,8 +32,8 @@ android {
         applicationId = "local.kutu.mirror"
         minSdk = 28
         targetSdk = 28
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
         // only English (values/) and Turkish (values-tr/) ship
         resourceConfigurations += listOf("en", "tr")
 

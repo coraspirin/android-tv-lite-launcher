@@ -601,6 +601,25 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         wakeLock = null
     }
 
+    /**
+     * The screen saver (Kutu Home's dream) is a window above every app, so a session that
+     * opens while it runs would play behind the clock. A screen wakelock with
+     * ACQUIRE_CAUSES_WAKEUP ends the dream; it times out on its own after 3 s, and from
+     * then on MirrorActivity's FLAG_KEEP_SCREEN_ON keeps the screen up. Nothing stays held.
+     */
+    @Suppress("DEPRECATION")
+    private fun _wakeScreen() {
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        try {
+            pm.newWakeLock(
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                "kutu:wake"
+            ).acquire(3000)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to wake the screen", e)
+        }
+    }
+
     private fun clearPin() {
         if (_lastPin == null) return
         _lastPin = null
@@ -709,6 +728,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         prefs.getBoolean(Prefs.LAUNCH_ON_CONNECT, Prefs.DEF_LAUNCH_ON_CONNECT)
 
     private fun launchMirrorActivity() {
+        _wakeScreen()
         val launchIntent = Intent(this, MirrorActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         try {

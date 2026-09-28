@@ -46,6 +46,7 @@ function Invoke-KutuInstall {
     $script:Turkish = if ($Lang) { $Lang -eq 'tr' } else { (Get-UICulture).TwoLetterISOLanguageName -eq 'tr' }
     $TotalSteps = 12
     $KutuHome = 'local.kutu.home/.HomeActivity'
+    $KutuDream = 'local.kutu.home/.KutuDream'
     # yuklenme sirasi: Kutu Home en son, cunku o kurulunca ana ekran degisebilir
     $InstallOrder = @('local.kutu.mirror', 'local.kutu.transfer', 'local.kutu.home')
     $Names = @{
@@ -359,6 +360,18 @@ function Invoke-KutuInstall {
                 Good 'Animasyonlar h\u0131zland\u0131r\u0131ld\u0131 (0.5).' 'Animations sped up (0.5).'
             }
         }
+        # Ekran koruyucu kapali ya da yoksa Android koruyucu yerine kutuyu hemen uyutur
+        # (CEC ile TV de kapanir). O durumda Kutu Home'un saati koruyucu yapilir; gecerli
+        # bir koruyucu varsa dokunulmaz.
+        $dreamNow = Sh 'settings get secure screensaver_components'
+        $dreamPkg = if ($dreamNow -and $dreamNow -ne 'null') { $dreamNow.Split(',')[0].Split('/')[0] } else { '' }
+        if ($dreamPkg -ne 'local.kutu.home' -and -not (Pkgs '-e')[$dreamPkg]) {
+            Change "dream $dreamNow" "settings put secure screensaver_components $KutuDream" | Out-Null
+            if ((Sh 'settings get secure screensaver_enabled') -ne '1') {
+                Change 'dream-enabled' 'settings put secure screensaver_enabled 1' | Out-Null
+            }
+            Good 'Ekran koruyucu: Kutu Saat (kutu art\u0131k erken uyumaz).' 'Screen saver: Kutu Clock (the box no longer sleeps early).'
+        }
 
         # ------------------------------------------------------------ 10. ana ekran
         Step 10 'Kutu Home ana ekran yap\u0131l\u0131yor' 'Making Kutu Home the home screen'
@@ -430,6 +443,12 @@ function Invoke-KutuInstall {
         foreach ($c in $script:Changes) {
             if ($c.What -like 'disable *') { $lines.Add("  adb shell pm enable --user 0 $($c.What.Substring(8))") | Out-Null }
             elseif ($c.What -like 'animation *') { $lines.Add("  adb shell settings put global $($c.What.Substring(10)) 1.0") | Out-Null }
+            elseif ($c.What -like 'dream *') {
+                $old = $c.What.Substring(6).Trim()
+                if ($old -and $old -ne 'null') { $lines.Add("  adb shell settings put secure screensaver_components $old") | Out-Null }
+                else { $lines.Add('  adb shell settings delete secure screensaver_components') | Out-Null }
+            }
+            elseif ($c.What -eq 'dream-enabled') { $lines.Add('  adb shell settings put secure screensaver_enabled 0') | Out-Null }
         }
         $lines.Add('') | Out-Null
         $lines.Add((L 'Hepsini tek seferde geri almak i\u00e7in depodaki RESTORE-ALL.ps1 de kullan\u0131labilir:' 'RESTORE-ALL.ps1 in the repository undoes all of it at once:')) | Out-Null

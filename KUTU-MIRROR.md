@@ -440,3 +440,13 @@ versionCode 2. The notification and app name gain a Turkish translation in `valu
 | Wakelocks | none | one `kutu:mirror` partial, released on teardown |
 | Listening ports | 7000 | 7000 |
 | Background services | 1 foreground service | same |
+
+## 1.2 - Wake from the screen saver - 2026-09-28
+
+versionCode 3. Kutu Home 1.4 brings a screen saver (`KutuDream`). A dream is a window above
+every app, so `startActivity(MirrorActivity)` during it would put the session behind the
+clock. `launchMirrorActivity()` (PIN prompt, mirroring, AirPlay Video) now first takes a
+`SCREEN_BRIGHT_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP` lock named `kutu:wake` with a 3 s timeout:
+it ends the dream and releases itself; `FLAG_KEEP_SCREEN_ON` holds the screen from there.
+The idle rule is unchanged: nothing is held outside a session. Built in WSL
+(5 924 482 bytes); not yet run on the box.

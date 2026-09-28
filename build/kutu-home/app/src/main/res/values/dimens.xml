@@ -38,6 +38,9 @@
 
     <dimen name="clock_time">34sp</dimen>
     <dimen name="clock_date">15sp</dimen>
+    <!-- screen saver: read from the sofa -->
+    <dimen name="dream_time">96sp</dimen>
+    <dimen name="dream_date">28sp</dimen>
     <dimen name="focused_label">20sp</dimen>
     <dimen name="chip_text">14sp</dimen>
     <dimen name="menu_text">17sp</dimen>

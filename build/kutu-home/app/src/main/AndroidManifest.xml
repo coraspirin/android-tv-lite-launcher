@@ -81,6 +81,19 @@
             android:screenOrientation="landscape"
             android:theme="@style/KutuTheme.Transparent" />
 
+        <!-- screen saver: the setup points screensaver_components here when the stock
+             one is disabled; bound by the system only while dreaming -->
+        <service
+            android:name=".KutuDream"
+            android:exported="true"
+            android:label="@string/dream_name"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
