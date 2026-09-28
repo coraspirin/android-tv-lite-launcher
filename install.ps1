@@ -140,6 +140,39 @@ function Invoke-KutuInstall {
         if ($o -match 'versionCode=(\d+)') { return [long]$Matches[1] }
         return -1
     }
+    # the box has the app signed with another key (a build from before the release keys), which
+    # Android cannot update in place: after asking, uninstall it and install the new one.
+    # The app's own folder (Kutu Aktarim's received files and backgrounds) is copied aside and put back.
+    function Reinstall([string]$pkg, [string]$apk) {
+        $name = Nm $pkg
+        Warn '{0} kutuda farkl\u0131 bir imzayla kurulmu\u015f (eski bir derlemeden kalma); Android onu yerinde g\u00fcncelleyemez.' '{0} on the box is signed with a different key (left from an older build); Android cannot update it in place.' $name
+        Warn 'Eskisi kald\u0131r\u0131l\u0131p yenisi kurulabilir; uygulaman\u0131n ayarlar\u0131 s\u0131f\u0131rlan\u0131r, klas\u00f6r\u00fcndeki dosyalar yedeklenip geri konur.' 'The old one can be uninstalled and the new one installed; the app''s settings are reset, the files in its folder are backed up and put back.'
+        $answer = ''
+        try { $answer = (Read-Host ('  ' + (L 'Eskisini kald\u0131r\u0131p yenisini kuray\u0131m m\u0131? [E/h]' 'Uninstall the old one and install the new one? [Y/n]'))).Trim() } catch { $answer = 'n' }
+        if ($answer -match '^[hHnN]') {
+            Fail ('{0} kurulamad\u0131: eski s\u00fcr\u00fcm kald\u0131r\u0131lmad\u0131. ' +
+                'Onu TV\u0027den kald\u0131r\u0131p komutu yeniden \u00e7al\u0131\u015ft\u0131rabilirsiniz.') ('{0} was not installed: the old version was left in place. ' +
+                'You can uninstall it on the TV and run the command again.') $name
+        }
+        $data = "/sdcard/Android/data/$pkg/files"
+        $backup = "/sdcard/Kutu-yedek/$pkg"
+        $saved = (Sh "[ -d $data ] && echo y") -eq 'y'
+        if ($saved -and (Sh "rm -rf $backup && mkdir -p /sdcard/Kutu-yedek && cp -r $data $backup && echo ok") -ne 'ok') {
+            Fail '{0} dosyalar\u0131 yedeklenemedi; hi\u00e7bir \u015fey kald\u0131r\u0131lmad\u0131.' 'The files of {0} could not be backed up; nothing was uninstalled.' $name
+        }
+        $u = Sh "pm uninstall $pkg"
+        if ($u -notmatch 'Success') { Fail '{0} kald\u0131r\u0131lamad\u0131: {1}' '{0} could not be uninstalled: {1}' $name $u }
+        Good 'Eski {0} kald\u0131r\u0131ld\u0131.' 'The old {0} was uninstalled.' $name
+        $r = Run @('-s', $script:Serial, 'install', $apk) 300
+        if ($saved) {
+            if ($r.Out -match 'Success' -and (Sh "mkdir -p $data && cp -r $backup/. $data/ && rm -rf $backup && echo ok") -eq 'ok') {
+                Good '{0} dosyalar\u0131 geri kondu.' 'The files of {0} were put back.' $name
+            } else {
+                Warn '{0} dosyalar\u0131n\u0131n yede\u011fi kutuda duruyor: {1}' 'The backup of the {0} files is still on the box: {1}' $name $backup
+            }
+        }
+        return $r
+    }
     function WaitBoot([int]$timeoutSec) {
         $deadline = (Get-Date).AddSeconds($timeoutSec)
         while ((Get-Date) -lt $deadline) {
@@ -279,11 +312,12 @@ function Invoke-KutuInstall {
             if ($DryRun) { Write-Host "  [$(L 'deneme' 'dry run')] adb install -r $($m.asset)" -ForegroundColor DarkGray; continue }
             Info '{0} {1} kuruluyor...' 'Installing {0} {1}...' $name $m.versionName
             $r = Run @('-s', $script:Serial, 'install', '-r', $apks[$pkg]) 300
+            if ($r.Out -notmatch 'Success' -and $r.Out -match 'UPDATE_INCOMPATIBLE|INCONSISTENT_CERTIFICATES') {
+                $r = Reinstall $pkg $apks[$pkg]
+            }
             if ($r.Out -notmatch 'Success') {
-                if ($r.Out -match 'UPDATE_INCOMPATIBLE|NO_MATCHING_ABIS|INCONSISTENT_CERTIFICATES') {
-                    Fail ('{0} kurulamad\u0131: kutuda farkl\u0131 bir imzayla kurulmu\u015f eski bir {0} var. ' +
-                        'Onu TV\u0027den kald\u0131r\u0131p komutu yeniden \u00e7al\u0131\u015ft\u0131r\u0131n.') ('{0} could not be installed: the box has an older {0} signed with a different key. ' +
-                        'Uninstall it on the TV and run the command again.') $name
+                if ($r.Out -match 'NO_MATCHING_ABIS') {
+                    Fail '{0} kurulamad\u0131: bu kutunun i\u015flemcisi desteklenmiyor.' '{0} could not be installed: this box has an unsupported processor.' $name
                 }
                 Fail '{0} kurulamad\u0131: {1}' '{0} could not be installed: {1}' $name $r.Out
             }
