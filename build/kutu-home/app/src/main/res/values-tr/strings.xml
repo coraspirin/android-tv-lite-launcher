@@ -54,9 +54,12 @@
     <string name="set_background_default">Varsayılan</string>
     <string name="set_background_custom">Özel resim</string>
     <string name="set_visible">Ana ekranda görünen uygulama</string>
-    <string name="set_wifi_name">Wi-Fi adı</string>
-    <string name="set_wifi_name_on">Gösteriliyor</string>
-    <string name="set_wifi_name_off">İzin ver</string>
+    <string name="set_stop_apps">Açık uygulamaları durdur</string>
+    <string name="stop_apps_done">Uygulamalar durduruldu</string>
+    <string name="stop_apps_freed">Uygulamalar durduruldu · %1$s boşaldı</string>
+    <string name="set_clear_cache">Uygulama önbelleklerini temizle</string>
+    <string name="set_free_space">%1$s boş</string>
+    <string name="clear_cache_hint">"Önbelleğe alınmış veriler"i seçin</string>
     <string name="set_update">Güncellemeleri denetle</string>
     <string name="set_version">Sürüm</string>
     <string name="ver_home">Home</string>

@@ -627,3 +627,25 @@ Built (1 094 488 bytes) but no box was connected on 2026-09-28. To check:
 then with `settings put system screen_off_timeout 60000` → `dumpsys power | grep mWakefulness`
 must read `Dreaming`, not `Asleep`; a key on the remote returns to Home; a short
 `sleep_timeout` still sleeps the box after the dream.
+
+## 1.5 - Settings: stop apps, app caches - 2026-09-29
+
+versionCode 9.
+
+- The "Wi-Fi adı / Wi-Fi name" row is gone from settings. The Wi-Fi name under the clock
+  and the one-time location question on the home screen are unchanged.
+- "Açık uygulamaları durdur / Stop running apps": `ActivityManager.killBackgroundProcesses`
+  for every launchable app except Kutu Home, Kutu Mirror (AirPlay stays visible) and Kutu
+  Aktarım (a transfer or update may be running). A toast shows how much memory came free
+  (`MemoryInfo.availMem` before and after). New permission `KILL_BACKGROUND_PROCESSES`
+  (normal, granted at install). Android 9 gives a normal app no force-stop; since Kutu Home
+  is in front, every other open app is in the background and is covered.
+- "Uygulama önbelleklerini temizle / Clear app caches" shows the free space on `/data` and
+  opens Android's storage screen (`ACTION_INTERNAL_STORAGE_SETTINGS`, falling back to
+  `ACTION_SETTINGS`), with a toast pointing at "Önbelleğe alınmış veriler / Cached data".
+  Clearing every app's cache in-app needs `CLEAR_APP_CACHE`, which is signature|privileged on
+  Android 9 and cannot be granted with `pm grant`.
+
+Built (1 096 168 bytes); not yet on a box. To check: the stop row empties `pidof` of an app
+that was just left with HOME while `pidof local.kutu.mirror` stays; the cache row lands on
+the storage screen and its "Cached data" entry clears caches only.

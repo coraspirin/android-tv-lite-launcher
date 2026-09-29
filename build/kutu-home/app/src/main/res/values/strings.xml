@@ -58,9 +58,12 @@
     <string name="set_background_default">Default</string>
     <string name="set_background_custom">Custom image</string>
     <string name="set_visible">Apps shown on home</string>
-    <string name="set_wifi_name">Wi-Fi name</string>
-    <string name="set_wifi_name_on">Shown</string>
-    <string name="set_wifi_name_off">Allow</string>
+    <string name="set_stop_apps">Stop running apps</string>
+    <string name="stop_apps_done">Apps stopped</string>
+    <string name="stop_apps_freed">Apps stopped · %1$s freed</string>
+    <string name="set_clear_cache">Clear app caches</string>
+    <string name="set_free_space">%1$s free</string>
+    <string name="clear_cache_hint">Choose "Cached data"</string>
     <string name="set_update">Check for updates</string>
     <string name="set_version">Version</string>
     <string name="ver_home">Home</string>

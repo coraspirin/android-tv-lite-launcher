@@ -39,6 +39,12 @@ Type the IP when asked. When the TV asks, choose **Always allow from this comput
 
 You can run it again at any time. Anything already up to date is skipped.
 
+To install only the Kutu apps and make Kutu Home the home screen, without slimming down the box, use `install-apps.ps1` instead:
+
+```powershell
+irm https://github.com/coraspirin/android-tv-lite-launcher/releases/latest/download/install-apps.ps1 | iex
+```
+
 After that the PC is no longer needed. Updates come from the TV itself: **Kutu Home → ⚙ (top left) → Check for updates**.
 
 <details>
@@ -100,12 +106,13 @@ If you **clone the whole repository**, Claude starts from the tested source unde
 | Path | Content |
 |---|---|
 | `install.ps1` | the one-command installer (also attached to every release) |
-| `tools/release.ps1` | packages the signed APKs, `kutu-versions.json` and `install.ps1` as a GitHub Release |
+| `install-apps.ps1` | the same installer without the slimming step: Kutu apps and home screen only |
+| `tools/release.ps1` | packages the signed APKs, `kutu-versions.json`, `install.ps1` and `install-apps.ps1` as a GitHub Release |
 | `MIBOX-CLAUDE-MASTER-GUIDE.md` | the build workflow for Claude Code |
 | `build/kutu-home/` | Kutu Home source (plain Java, zero dependencies) |
 | `build/kutu-mirror/` | Kutu Mirror source, a GPL-3.0 fork of [jqssun/android-airplay-server](https://github.com/jqssun/android-airplay-server) |
 | `build/kutu-transfer/` | Kutu Transfer source (plain Java, zero dependencies) and its page tests |
-| `build/assets/kutu-home-background.png` | default wallpaper |
+| `build/assets/kutu-home-background.jpg` | default wallpaper |
 | `RESTORE-ALL.ps1`, `PROJECT-PACKAGES.txt`, `PRESERVED-PRIOR-DISABLES.txt` | rollback for the reference box |
 | `KUTU-HOME.md`, `KUTU-MIRROR.md`, `KUTU-TRANSFER.md` | build and test records of the reference box |
 | `docs/screenshots/` | the screens above, taken on the reference box |

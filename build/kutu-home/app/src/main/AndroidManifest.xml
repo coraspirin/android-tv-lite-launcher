@@ -14,12 +14,15 @@
         granted once at setup (pm grant) and used for nothing else - Kutu Home never asks
         for a location. Without it the line says "Wi-Fi bağlı" instead of the name.
         BLUETOOTH: reads the remote's battery level from its BLE Battery Service.
+        KILL_BACKGROUND_PROCESSES: the "stop running apps" row in settings. A normal
+        permission; it only ends apps that are in the background, never force-stops.
     -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
     <uses-feature android:name="android.software.leanback" android:required="true" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />

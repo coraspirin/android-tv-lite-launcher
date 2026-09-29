@@ -1,11 +1,16 @@
 package local.kutu.home;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StatFs;
+import android.provider.Settings;
+import android.text.format.Formatter;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,13 +23,14 @@ import android.widget.Toast;
  *
  * One light-glass card of rows. A row with a value changes with LEFT/RIGHT (and OK steps
  * it forward); a row that leads somewhere opens on OK. BACK closes and focus returns to
- * the gear. Everything is stored in the launcher's "home" preferences; nothing here
- * touches the system.
+ * the gear. Everything is stored in the launcher's "home" preferences. Two rows act on
+ * the box: "stop running apps" ends the apps in the background, and "clear app caches"
+ * opens Android's own storage screen, because only a system app may clear other apps'
+ * caches (CLEAR_APP_CACHE is signature|privileged on Android 9).
  */
 public final class SettingsActivity extends Activity {
 
     private static final String UPDATE_ACTIVITY = "local.kutu.transfer.UpdateActivity";
-    private static final int REQ_LOCATION = 42;
 
     /** survives the recreate() a theme change triggers, so focus stays on the row that did it */
     private static int focusRowAfterRecreate = -1;
@@ -37,7 +43,7 @@ public final class SettingsActivity extends Activity {
     private Row lightFrom;
     private Row background;
     private Row visible;
-    private Row wifiName;
+    private Row clearCache;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -92,10 +98,16 @@ public final class SettingsActivity extends Activity {
                 refresh();
             }
         }, null);
-        wifiName = addRow(R.string.set_wifi_name, null, new Runnable() {
+        addRow(R.string.set_stop_apps, null, new Runnable() {
             @Override
             public void run() {
-                askForWifiName();
+                stopApps();
+            }
+        });
+        clearCache = addRow(R.string.set_clear_cache, null, new Runnable() {
+            @Override
+            public void run() {
+                openStorage();
             }
         });
         addRow(R.string.set_update, null, new Runnable() {
@@ -145,35 +157,74 @@ public final class SettingsActivity extends Activity {
         background.value.setText(HomeSettings.hasCustomBackground(this)
                 ? R.string.set_background_custom : R.string.set_background_default);
         visible.value.setText(String.valueOf(HomeSettings.visibleTiles(this)));
-        wifiName.value.setText(HomeSettings.canReadWifiName(this)
-                ? R.string.set_wifi_name_on : R.string.set_wifi_name_off);
+        clearCache.value.setText(getString(R.string.set_free_space, freeSpace()));
     }
 
     /**
-     * Asks for location access, which is all Android 9 wants before it shows the Wi-Fi
-     * network's name. Always the dialog first; only when Android answers "denied" without
-     * showing it (the human once chose "don't ask again") is the app's own settings page
-     * opened, where the permission can be switched on by hand.
+     * Ends every launchable app that is in the background. Android 9 lets a normal app do
+     * no more than that (force-stop needs a system permission); Kutu Home is in front, so
+     * every other app that is open counts as background. Kutu Mirror stays up so AirPlay
+     * remains visible, and Kutu Aktarım may be in the middle of a transfer or an update.
      */
-    private void askForWifiName() {
-        if (HomeSettings.canReadWifiName(this)) return;
-        requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
+    private void stopApps() {
+        final Context app = getApplicationContext();
+        final ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long before = availMem(am);
+                for (AppEntry e : AppRepository.loadLaunchable(app)) {
+                    if (e.pkg.equals(app.getPackageName()) || e.pkg.equals(AppRepository.MIRROR_PKG)
+                            || e.pkg.equals(AppRepository.TRANSFER_PKG)) continue;
+                    try {
+                        am.killBackgroundProcesses(e.pkg);
+                    } catch (Exception ignored) {
+                    }
+                }
+                try {
+                    Thread.sleep(500);   // the freed memory shows up a moment later
+                } catch (InterruptedException ignored) {
+                }
+                long freed = availMem(am) - before;
+                final String msg = freed >= 1024L * 1024L
+                        ? app.getString(R.string.stop_apps_freed, Formatter.formatShortFileSize(app, freed))
+                        : app.getString(R.string.stop_apps_done);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(app, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }, "kutu-stop-apps").start();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
-        super.onRequestPermissionsResult(requestCode, permissions, results);
-        if (requestCode != REQ_LOCATION) return;
-        if (results.length > 0) HomeSettings.setAskedLocation(this);
-        boolean granted = results.length > 0 && results[0] == android.content.pm.PackageManager.PERMISSION_GRANTED;
-        if (!granted && results.length > 0
-                && !shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+    private static long availMem(ActivityManager am) {
+        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+        am.getMemoryInfo(mi);
+        return mi.availMem;
+    }
+
+    /** Android's storage screen; its "Cached data" entry clears every app's cache, not its data. */
+    private void openStorage() {
+        Toast.makeText(this, R.string.clear_cache_hint, Toast.LENGTH_LONG).show();
+        try {
+            startActivity(new Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS));
+        } catch (Exception e) {
             try {
-                startActivity(AppRepository.appInfoIntent(getPackageName()));
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
             } catch (Exception ignored) {
             }
         }
-        refresh();
+    }
+
+    private String freeSpace() {
+        try {
+            StatFs fs = new StatFs(Environment.getDataDirectory().getPath());
+            return Formatter.formatShortFileSize(this, fs.getAvailableBytes());
+        } catch (Exception e) {
+            return "?";
+        }
     }
 
     /** A theme setting changed; redraw in the other theme when that is now due. */
