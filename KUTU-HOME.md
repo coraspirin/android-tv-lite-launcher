@@ -45,7 +45,7 @@ APK installs over the existing one as an update.
 
 ## Background image (section 17)
 
-`kutu-home-background.png`, 1672x941 (aspect 1.7768 against 16:9 = 1.7778), taken
+`kutu-home-background.jpg`, 1672x941 (aspect 1.7768 against 16:9 = 1.7778), taken
 verbatim from the guide repo, sha256 `425f253a...d424`. Bundled in
 `res/drawable-nodpi/`, rendered with `centerCrop` so it fills 1920x1080 without
 stretching; the 0.06 % aspect difference crops well under one pixel. No network

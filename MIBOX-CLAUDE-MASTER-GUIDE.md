@@ -10,7 +10,7 @@
 > - ADB is installed.
 > - `adb devices` shows the TV/box as `device`.
 >
-> The human may also provide a background image. **If an image is supplied with this guide, use that exact image as the Kutu Home background. Do not redraw or replace it.** If none is supplied and this repository is available, use its `kutu-home-background.png` verbatim.
+> The human may also provide a background image. **If an image is supplied with this guide, use that exact image as the Kutu Home background. Do not redraw or replace it.** If none is supplied and this repository is available, use its `kutu-home-background.jpg` verbatim.
 >
 > The result is three small apps plus a reversible debloat:
 >
@@ -107,7 +107,7 @@ This repository may contain the tested source of all three apps:
 | `build/kutu-mirror/` | Kutu Mirror fork source snapshot (Kotlin + native C/C++) |
 | `build/kutu-mirror-fork.bundle` | git bundle of the Kutu Mirror fork history |
 | `build/kutu-transfer/` | Kutu Transfer, plain Java, zero dependencies, plus `tools/` page tests |
-| `kutu-home-background.png` | the reference background (1672x941) |
+| `kutu-home-background.jpg` | the reference background (1672x941) |
 
 **If the source exists, start from it** and adapt to the actual device rather than rewriting it:
 - minSdk/targetSdk, ABI filters, foreground-service types for the actual Android version
@@ -847,7 +847,7 @@ Seed these only if no saved dock exists. Never overwrite user layout on update.
 
 # 17. Use supplied background exactly
 
-If a background image is supplied (or the repo's `kutu-home-background.png` is used):
+If a background image is supplied (or the repo's `kutu-home-background.jpg` is used):
 - use that exact image, record its SHA-256
 - do not redraw/reinterpret
 - preserve composition

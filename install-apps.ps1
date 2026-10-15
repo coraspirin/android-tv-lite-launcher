@@ -352,6 +352,9 @@ function Invoke-KutuInstall {
                 Write-Host ('  [' + (L 'deneme' 'dry run') + '] reboot') -ForegroundColor DarkGray
             } else {
                 Info 'Kutu yeniden ba\u015flat\u0131l\u0131yor (1-2 dakika s\u00fcrer)...' 'Restarting the box (takes 1-2 minutes)...'
+                # Android 9 pm disable-user'i diske ~10 sn gecikmeyle yazar; hemen reboot
+                # edilirse kapatilan paketler (stok ana ekran dahil) acik geri gelir
+                Start-Sleep -Seconds 15
                 Run @('-s', $script:Serial, 'reboot') 30 | Out-Null
                 Start-Sleep -Seconds 20
                 if (-not (WaitBoot 240)) { Fail 'Kutu yeniden ba\u015flad\u0131ktan sonra ba\u011flan\u0131lamad\u0131. Kutu a\u00e7\u0131ld\u0131ysa komutu yeniden \u00e7al\u0131\u015ft\u0131r\u0131n.' 'Could not reconnect after the restart. Once the box is up, run the command again.' }
